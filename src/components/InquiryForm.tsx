@@ -12,7 +12,7 @@ export default function InquiryForm({ institutionId, institutionName, courses }:
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', course_id: '', message: '' })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
-  const handleSubmit = async (e: React.FormEvent) = >{
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setStatus('loading')
     const supabase = createClient()
@@ -30,7 +30,7 @@ export default function InquiryForm({ institutionId, institutionName, courses }:
   if (status === 'success') {
     return (
       <div className="text-center py-6">
-        <div className="text-4xl mb-3">✅</div>
+        <div className="text-4xl mb-3 text-green-500">OK</div>
         <p className="font-semibold text-gray-800">Inquiry sent!</p>
         <p className="text-sm text-gray-500 mt-1">{institutionName} will be in touch with you soon.</p>
       </div>
@@ -74,7 +74,7 @@ export default function InquiryForm({ institutionId, institutionName, courses }:
       )}
       <textarea
         rows={3}
-        placeholder="Your message or question…"
+        placeholder="Your message or question..."
         value={form.message}
         onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
         className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a3c6b] resize-none"
@@ -87,7 +87,7 @@ export default function InquiryForm({ institutionId, institutionName, courses }:
         disabled={status === 'loading'}
         className="w-full bg-[#1a3c6b] hover:bg-[#152f56] text-white py-2.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
       >
-        {status === 'loading' ? 'Sending…' : 'Send Inquiry'}
+        {status === 'loading' ? 'Sending...' : 'Send Inquiry'}
       </button>
     </form>
   )
