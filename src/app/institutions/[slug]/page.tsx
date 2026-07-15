@@ -17,69 +17,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function InstitutionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createServerSupabase()
-
-  const { data: inst } = await supabase
-    .from('institutions')
-    .select('*, categories(name,slug)')
-    .eq('slug', slug)
-    .single()
-
+  const { data: inst } = await supabase.from('institutions').select('*, categories(name,slug)').eq('slug', slug).single()
   if (!inst) notFound()
-
-  const { data: courses } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('institution_id', inst.id)
-    .eq('is_active', true)
-    .order('level')
-
+  const { data: courses } = await supabase.from('courses').select('*').eq('institution_id', inst.id).eq('is_active', true).order('level')
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Breadcrumb */}
       <nav className="text-xs text-gray-400 mb-6 flex gap-2">
         <Link href="/" className="hover:text-[#1a3c6b]">Home</Link>
         <span>/</span>
         <Link href="/institutions" className="hover:text-[#1a3c6b]">Institutions</Link>
-        {inst.categories && <>
-          <span>/</span>
-          <Link href={`/institutions?category=${(inst.categories as any).slug}`} className="hover:text-[#1a3c6b]">
-            {(inst.categories as any).name}
-          </Link>
-        </>}
+        {inst.categories && <><span>/</span><Link href={`/institutions?category=${(inst.categories as any).slug}`} className="hover:text-[#1a3c6b]">{(inst.categories as any).name}</Link></>}
         <span>/</span>
         <span className="text-gray-600">{inst.name}</span>
       </nav>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Header card */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-xl bg-[#1a3c6b] flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
-                {inst.name[0]}
-              </div>
+              <div className="w-16 h-16 rounded-xl bg-[#1a3c6b] flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">{inst.name[0]}</div>
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-900">{inst.name}</h1>
-                {inst.categories && (
-                  <span className="inline-block text-xs bg-blue-50 text-[#1a3c6b] px-3 py-1 rounded-full mt-1">
-                    {(inst.categories as any).name}
-                  </span>
-                )}
-                {inst.ugc_recognised && (
-                  <span className="inline-block text-xs bg-green-50 text-green-700 px-3 py-1 rounded-full mt-1 ml-2">
-                    ✓ UGC Recognised
-                  </span>
-                )}
+                {inst.categories && <span className="inline-block text-xs bg-blue-50 text-[#1a3c6b] px-3 py-1 rounded-full mt-1">{(inst.categories as any).name}</span>}
+                {inst.ugc_recognised && <span className="inline-block text-xs bg-green-50 text-green-700 px-3 py-1 rounded-full mt-1 ml-2">UGC Recognised</span>}
               </div>
             </div>
-
-            {inst.description && (
-              <p className="mt-4 text-gray-600 text-sm leading-relaxed">{inst.description}</p>
-            )}
+            {inst.description && <p className="mt-4 text-gray-600 text-sm leading-relaxed">{inst.description}</p>}
           </div>
-
-          {/* Details */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <h2 className="font-semibold text-gray-800 mb-4">Details</h2>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
@@ -94,8 +57,6 @@ export default async function InstitutionPage({ params }: { params: Promise<{ sl
               {inst.gender && <><dt className="text-gray-400">Gender</dt><dd className="text-gray-700">{inst.gender}</dd></>}
             </dl>
           </div>
-
-          {/* Courses */}
           {courses && courses.length > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <h2 className="font-semibold text-gray-800 mb-4">Courses Offered</h2>
@@ -110,11 +71,7 @@ export default async function InstitutionPage({ params }: { params: Promise<{ sl
                           {course.duration && <span className="text-xs text-gray-400">{course.duration}</span>}
                         </div>
                       </div>
-                      {course.fees && (
-                        <span className="text-sm font-semibold text-[#1a3c6b]">
-                          LKR {course.fees.toLocaleString()}
-                        </span>
-                      )}
+                      {course.fees && <span className="text-sm font-semibold text-[#1a3c6b]">LKR {course.fees.toLocaleString()}</span>}
                     </div>
                     {course.description && <p className="text-xs text-gray-500 mt-2">{course.description}</p>}
                   </div>
@@ -123,36 +80,14 @@ export default async function InstitutionPage({ params }: { params: Promise<{ sl
             </div>
           )}
         </div>
-
-        {/* Sidebar */}
         <div className="space-y-4">
-          {/* Contact card */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3">
             <h2 className="font-semibold text-gray-800">Contact</h2>
-            {inst.phone && (
-              <a href={`tel:${inst.phone}`} className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#1a3c6b]">
-                <span>📞</span><span>{inst.phone}</span>
-              </a>
-            )}
-            {inst.email && (
-              <a href={`mailto:${inst.email}`} className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#1a3c6b] break-all">
-                <span>✉️</span><span>{inst.email}</span>
-              </a>
-            )}
-            {inst.website && (
-              <a href={inst.website} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-[#1a3c6b] hover:underline">
-                <span>🌐</span><span>{inst.website.replace(/^https?:\/\//, '')}</span>
-              </a>
-            )}
-            {inst.address && (
-              <p className="flex items-start gap-2 text-sm text-gray-500">
-                <span>��</span><span>{inst.address}</span>
-              </p>
-            )}
+            {inst.phone && <a href={`tel:${inst.phone}`} className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#1a3c6b]"><span className="text-gray-400">Tel:</span><span>{inst.phone}</span></a>}
+            {inst.email && <a href={`mailto:${inst.email}`} className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#1a3c6b] break-all"><span className="text-gray-400">Email:</span><span>{inst.email}</span></a>}
+            {inst.website && <a href={inst.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-[#1a3c6b] hover:underline"><span className="text-gray-400">Web:</span><span>{inst.website.replace(/^https?:\/\//, '')}</span></a>}
+            {inst.address && <p className="flex items-start gap-2 text-sm text-gray-500"><span className="text-gray-400">Addr:</span><span>{inst.address}</span></p>}
           </div>
-
-          {/* Inquiry form */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <h2 className="font-semibold text-gray-800 mb-4">Send an Inquiry</h2>
             <InquiryForm institutionId={inst.id} institutionName={inst.name} courses={courses || []} />
