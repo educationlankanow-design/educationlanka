@@ -18,7 +18,6 @@ export default function Dashboard() {
       if (!user) { router.push('/portal'); return }
       setUser(user)
 
-      // Get linked institution
       const { data: iu } = await supabase
         .from('institution_users')
         .select('institution_id, institutions(*)')
@@ -27,7 +26,6 @@ export default function Dashboard() {
 
       if (iu?.institutions) {
         setInstitution(iu.institutions)
-        // Get inquiries
         const { data: inq } = await supabase
           .from('inquiries')
           .select('*')
@@ -53,13 +51,12 @@ export default function Dashboard() {
 
   if (loading) return (
     <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="animate-spin text-4xl">⏳</div>
+      <div className="animate-spin text-4xl text-[#1a3c6b]">O</div>
     </div>
   )
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Institution Dashboard</h1>
@@ -77,19 +74,17 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Institution card */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">{institution.name}</h2>
-                <p className="text-sm text-gray-500 mt-1">📍 {[institution.city, institution.district].filter(Boolean).join(', ')}</p>
+                <p className="text-sm text-gray-500 mt-1">{[institution.city, institution.district].filter(Boolean).join(', ')}</p>
               </div>
               <Link href={`/institutions/${institution.slug}`}
-                className="text-sm text-[#1a3c6b] hover:underline">View public listing →</Link>
+                className="text-sm text-[#1a3c6b] hover:underline">View public listing &rarr;</Link>
             </div>
           </div>
 
-          {/* Inquiries */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-gray-800">
@@ -103,7 +98,7 @@ export default function Dashboard() {
             </div>
 
             {inquiries.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-8">No inquiries yet. They'll appear here when students submit the form on your listing.</p>
+              <p className="text-sm text-gray-400 text-center py-8">No inquiries yet. They will appear here when students submit the form on your listing.</p>
             ) : (
               <div className="space-y-3">
                 {inquiries.map((inq: any) => (
