@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { createServerSupabase } from '@/lib/supabase-server'
 
+export const dynamic = 'force-dynamic'
+
 const CATEGORIES = [
   { slug: 'universities',          name: 'Universities',              abbr: 'UNI', color: 'bg-blue-600' },
   { slug: 'institutes',            name: 'Degree Institutes',         abbr: 'DEG', color: 'bg-emerald-600' },
