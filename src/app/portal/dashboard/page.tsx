@@ -11,10 +11,10 @@ export default function Dashboard() {
   const [inquiries, setInquiries] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
     const load = async () => {
+      const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/portal'); return }
       setUser(user)
@@ -41,18 +41,20 @@ export default function Dashboard() {
   }, [])
 
   const signOut = async () => {
+    const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/portal')
   }
 
   const markRead = async (id: string) => {
+    const supabase = createClient()
     await supabase.from('inquiries').update({ status: 'read' }).eq('id', id)
     setInquiries(inq => inq.map(i => i.id === id ? { ...i, status: 'read' } : i))
   }
 
   if (loading) return (
     <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="animate-spin text-4xl text-[#1a3c6b]">O</div>
+      <div className="text-lg text-gray-400">Loading...</div>
     </div>
   )
 
@@ -82,7 +84,7 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-500 mt-1">{[institution.city, institution.district].filter(Boolean).join(', ')}</p>
               </div>
               <Link href={`/institutions/${institution.slug}`}
-                className="text-sm text-[#1a3c6b] hover:underline">View public listing &rarr;</Link>
+                className="text-sm text-[#1a3c6b] hover:underline">View public listing</Link>
             </div>
           </div>
 
