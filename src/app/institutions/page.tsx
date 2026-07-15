@@ -50,7 +50,6 @@ export default async function InstitutionsPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Search + filters header */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <form action="/institutions" className="flex-1 flex gap-2">
           {category && <input type="hidden" name="category" value={category} />}
@@ -59,7 +58,7 @@ export default async function InstitutionsPage({
             name="q"
             defaultValue={q}
             type="text"
-            placeholder="Search institutions…"
+            placeholder="Search institutions..."
             className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a3c6b] text-sm"
           />
           <button type="submit" className="bg-[#1a3c6b] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#152f56] transition-colors">
@@ -69,7 +68,6 @@ export default async function InstitutionsPage({
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar */}
         <aside className="lg:w-56 flex-shrink-0">
           <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-5">
             <div>
@@ -113,14 +111,13 @@ export default async function InstitutionsPage({
           </div>
         </aside>
 
-        {/* Results */}
         <div className="flex-1">
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-gray-500">
               {count?.toLocaleString() ?? 0} institutions found
               {q && <> for &ldquo;<strong>{q}</strong>&rdquo;</>}
               {category && <> in <strong>{CATEGORIES.find(c => c.slug === category)?.name}</strong></>}
-              {province && <> · <strong>{province} Province</strong></>}
+              {province && <> - <strong>{province} Province</strong></>}
             </p>
           </div>
 
@@ -141,31 +138,29 @@ export default async function InstitutionsPage({
                     </span>
                   )}
                   <p className="text-xs text-gray-500">
-                    📍 {[inst.city, inst.district, inst.province].filter(Boolean).join(', ')}
+                    {[inst.city, inst.district, inst.province].filter(Boolean).join(', ')}
                   </p>
-                  {inst.phone && <p className="text-xs text-gray-400 mt-1">📞 {inst.phone}</p>}
+                  {inst.phone && <p className="text-xs text-gray-400 mt-1">{inst.phone}</p>}
                 </Link>
               ))}
             </div>
           ) : (
             <div className="text-center py-20 text-gray-400">
-              <p className="text-5xl mb-4">🔍</p>
               <p className="text-lg font-medium">No institutions found</p>
               <p className="text-sm">Try a different search or filter</p>
             </div>
           )}
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-8">
               {pageNum > 1 && (
                 <Link href={buildUrl({ page: String(pageNum - 1) })}
-                  className="px-4 py-2 text-sm border border-gray-200 rounded-xl hover:bg-gray-50">← Prev</Link>
+                  className="px-4 py-2 text-sm border border-gray-200 rounded-xl hover:bg-gray-50">&larr; Prev</Link>
               )}
               <span className="px-4 py-2 text-sm text-gray-600">Page {pageNum} of {totalPages}</span>
               {pageNum < totalPages && (
                 <Link href={buildUrl({ page: String(pageNum + 1) })}
-                  className="px-4 py-2 text-sm border border-gray-200 rounded-xl hover:bg-gray-50">Next →</Link>
+                  className="px-4 py-2 text-sm border border-gray-200 rounded-xl hover:bg-gray-50">Next &rarr;</Link>
               )}
             </div>
           )}
