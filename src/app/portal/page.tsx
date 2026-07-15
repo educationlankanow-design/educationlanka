@@ -33,7 +33,7 @@ export default function PortalLogin() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-sm border border-gray-100">
-          <div className="text-5xl mb-4">📧</div>
+          <div className="text-5xl mb-4 text-blue-500">@</div>
           <h2 className="text-xl font-bold text-gray-800 mb-2">Check your email</h2>
           <p className="text-gray-500 text-sm">We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.</p>
         </div>
@@ -70,7 +70,7 @@ export default function PortalLogin() {
           {error && <p className="text-sm text-red-500">{error}</p>}
           <button type="submit" disabled={status === 'loading'}
             className="w-full bg-[#1a3c6b] hover:bg-[#152f56] text-white py-3 rounded-xl font-semibold text-sm transition-colors disabled:opacity-60">
-            {status === 'loading' ? 'Please wait…' : mode === 'login' ? 'Login' : 'Create Account'}
+            {status === 'loading' ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create Account'}
           </button>
         </form>
 
@@ -78,7 +78,7 @@ export default function PortalLogin() {
           By registering, your account will be linked to your institution listing by our team.
         </p>
         <div className="text-center mt-4">
-          <Link href="/" className="text-xs text-gray-400 hover:text-[#1a3c6b]">← Back to directory</Link>
+          <Link href="/" className="text-xs text-gray-400 hover:text-[#1a3c6b]">&larr; Back to directory</Link>
         </div>
       </div>
     </div>
