@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+:root {
+  --brand: #1a3c6b;
+  --brand-light: #2a5298;
+  --accent: #f97316;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+}
