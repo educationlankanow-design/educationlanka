@@ -1,4 +1,6 @@
 import { createServerSupabase } from '@/lib/supabase-server'
+
+export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import InquiryForm from '@/components/InquiryForm'
 import Link from 'next/link'
