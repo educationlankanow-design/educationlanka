@@ -4,7 +4,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'Education Lanka – Find Schools, Universities & Institutes in Sri Lanka',
+  title: 'Education Lanka - Find Schools, Universities & Institutes in Sri Lanka',
   description: 'The most complete directory of educational institutions in Sri Lanka. Search schools, universities, international schools, vocational institutes and more.',
   keywords: 'schools sri lanka, universities sri lanka, international schools colombo, education directory',
 }
