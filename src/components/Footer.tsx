@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
           <h3 className="text-xl font-bold mb-2">Education<span className="text-orange-400">Lanka</span></h3>
-          <p className="text-sm text-blue-200">Sri Lanka's most complete education directory — find schools, universities and institutes island-wide.</p>
+          <p className="text-sm text-blue-200">Sri Lanka's most complete education directory - find schools, universities and institutes island-wide.</p>
         </div>
         <div>
           <h4 className="font-semibold mb-3 text-orange-300">Browse</h4>
@@ -35,7 +35,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-blue-800 text-center text-xs text-blue-300 py-4">
-        © {new Date().getFullYear()} EducationLanka.com · All rights reserved
+        (c) {new Date().getFullYear()} EducationLanka.com - All rights reserved
       </div>
     </footer>
   )
