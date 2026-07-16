@@ -24,30 +24,27 @@ const TYPES = [
 ]
 
 const CATEGORY_COLORS: Record<string, string> = {
-  universities: '#1a3a6b',
-  institutes: '#0ea5e9',
-  'international-schools': '#8b5cf6',
-  'national-schools': '#f97316',
-  'private-schools': '#ec4899',
-  vocational: '#14b8a6',
+  universities: '#1a3a6b', institutes: '#0ea5e9', 'international-schools': '#8b5cf6',
+  'national-schools': '#f97316', 'private-schools': '#ec4899', vocational: '#14b8a6',
+  Public: '#1a3a6b', Private: '#0ea5e9', 'Degree Awarding': '#0ea5e9',
+  International: '#8b5cf6', '1AB': '#f97316', '1C': '#f97316', '1B': '#f97316',
+  Professional: '#14b8a6', Vocational: '#14b8a6',
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  universities: 'University',
-  institutes: 'Degree Institute',
-  'international-schools': 'International School',
-  'national-schools': 'National School',
-  'private-schools': 'Private School',
-  vocational: 'Vocational',
+  universities: 'University', institutes: 'Degree Institute', 'international-schools': 'International School',
+  'national-schools': 'National School', 'private-schools': 'Private School', vocational: 'Vocational',
+  Public: 'University', Private: 'Private Institute', 'Degree Awarding': 'Degree Awarding',
+  International: 'International School', '1AB': 'National School', '1C': 'National School', '1B': 'National School',
+  Professional: 'Professional', Vocational: 'Vocational',
 }
 
 const CATEGORY_BADGES: Record<string, string> = {
-  universities: 'badge-blue',
-  institutes: 'badge-green',
-  'international-schools': 'badge-purple',
-  'national-schools': 'badge-orange',
-  'private-schools': 'badge-pink',
-  vocational: 'badge-teal',
+  universities: 'badge-blue', institutes: 'badge-green', 'international-schools': 'badge-purple',
+  'national-schools': 'badge-orange', 'private-schools': 'badge-pink', vocational: 'badge-teal',
+  Public: 'badge-blue', Private: 'badge-green', 'Degree Awarding': 'badge-green',
+  International: 'badge-purple', '1AB': 'badge-orange', '1C': 'badge-orange', '1B': 'badge-orange',
+  Professional: 'badge-teal', Vocational: 'badge-teal',
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -81,7 +78,7 @@ export default async function HomePage() {
       .eq('slug', 'informatics-institute-of-technology-iit')
       .single() as any,
     supabase.from('institutions')
-      .select('id, name, slug, category, city, district')
+      .select('*')
       .eq('is_featured' as any, true)
       .limit(12),
   ])
