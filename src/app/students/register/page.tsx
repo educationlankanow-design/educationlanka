@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase-client'
 
 const SUBJECTS = [
@@ -24,7 +23,7 @@ export default function StudentRegisterPage() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
+  const [registeredEmail, setRegisteredEmail] = useState('')
 
   const [form, setForm] = useState({
     fullName: '', email: '', password: '', phone: '',
@@ -56,21 +55,30 @@ export default function StudentRegisterPage() {
         options: { emailRedirectTo: window.location.origin + '/auth/callback' }
       })
       if (signUpErr) throw signUpErr
+
+      // Save profile via admin API route so it works even before email confirmation
       if (authData.user) {
-        const { error: profileErr } = await supabase.from('students').upsert({
-          user_id: authData.user.id,
-          full_name: form.fullName,
-          email: form.email,
-          phone: form.phone || null,
-          current_school: form.currentSchool || null,
-          current_grade: form.currentGrade || null,
-          target_level: form.targetLevel || null,
-          subjects: form.subjects,
-          bio: form.bio || null,
+        const res = await fetch('/api/complete-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: authData.user.id,
+            full_name: form.fullName,
+            email: form.email,
+            phone: form.phone || null,
+            current_school: form.currentSchool || null,
+            current_grade: form.currentGrade || null,
+            target_level: form.targetLevel || null,
+            subjects: form.subjects,
+            bio: form.bio || null,
+          })
         })
-        if (profileErr) console.error('Profile error:', profileErr)
+        if (!res.ok) console.error('Profile save failed:', await res.text())
       }
-      router.push('/students/profile?registered=1')
+
+      setRegisteredEmail(form.email)
+      setStep(4) // Check email step
+      setLoading(false)
     } catch (err: any) {
       setError(err.message || 'Registration failed')
       setLoading(false)
@@ -78,7 +86,7 @@ export default function StudentRegisterPage() {
   }
 
   const stepTitles = ['Your Details', 'Your School', 'Your Interests']
-  const progress = (step / 3) * 100
+  const progress = Math.min((step / 3) * 100, 100)
 
   return (
     <>
@@ -100,19 +108,20 @@ export default function StudentRegisterPage() {
             <p style={{ color: 'var(--color-text-secondary)', marginTop: '0.5rem' }}>Join thousands of students finding their path</p>
           </div>
 
-          {/* Progress */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              {stepTitles.map((t, i) => (
-                <span key={i} style={{ fontSize: '0.75rem', fontWeight: i + 1 === step ? 700 : 400, color: i + 1 <= step ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}>
-                  {i + 1}. {t}
-                </span>
-              ))}
+          {step < 4 && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                {stepTitles.map((t, i) => (
+                  <span key={i} style={{ fontSize: '0.75rem', fontWeight: i + 1 === step ? 700 : 400, color: i + 1 <= step ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}>
+                    {i + 1}. {t}
+                  </span>
+                ))}
+              </div>
+              <div style={{ height: '4px', background: 'var(--color-border)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: progress + '%', background: 'var(--color-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} />
+              </div>
             </div>
-            <div style={{ height: '4px', background: 'var(--color-border)', borderRadius: '2px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: progress + '%', background: 'var(--color-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} />
-            </div>
-          </div>
+          )}
 
           <div style={{ background: 'var(--color-surface)', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-2xl)', padding: '2rem', boxShadow: 'var(--shadow-md)' }}>
             {error && (
@@ -157,7 +166,7 @@ export default function StudentRegisterPage() {
 
             {step === 2 && (
               <div>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.25rem' }}>School & Level</h2>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.25rem' }}>School &amp; Level</h2>
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ display: 'block', fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.4rem' }}>Current School / Institution</label>
                   <input type="text" value={form.currentSchool} onChange={e => update('currentSchool', e.target.value)} placeholder="e.g. Royal College Colombo"
@@ -188,8 +197,8 @@ export default function StudentRegisterPage() {
 
             {step === 3 && (
               <div>
-                <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem' }}>Subjects & Interests</h2>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>Select all that apply â institutions will match you with relevant programs.</p>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem' }}>Subjects &amp; Interests</h2>
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>Select all that apply — institutions will match you with relevant programs.</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
                   {SUBJECTS.map(s => (
                     <button key={s} type="button"
@@ -220,10 +229,30 @@ export default function StudentRegisterPage() {
               </div>
             )}
 
-            <p style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-              Already have an account?{' '}
-              <Link href="/students/login" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Sign in &rarr;</Link>
-            </p>
+            {step === 4 && (
+              <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>📧</div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>Check your email!</h2>
+                <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.7, marginBottom: '0.75rem' }}>
+                  We&apos;ve sent a confirmation link to{' '}
+                  <strong style={{ color: 'var(--color-text)' }}>{registeredEmail}</strong>.
+                </p>
+                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', lineHeight: 1.6 }}>
+                  Click the link in the email to verify your account. Your profile details have been saved and will be ready when you sign in.
+                </p>
+                <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--color-primary-muted)', borderRadius: 'var(--radius-lg)', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                  Didn&apos;t get the email? Check your spam folder, or{' '}
+                  <Link href="/students/login" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>try signing in</Link>.
+                </div>
+              </div>
+            )}
+
+            {step < 4 && (
+              <p style={{ textAlign: 'center', marginTop: '1.25rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
+                Already have an account?{' '}
+                <Link href="/students/login" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Sign in &rarr;</Link>
+              </p>
+            )}
           </div>
         </div>
       </div>
