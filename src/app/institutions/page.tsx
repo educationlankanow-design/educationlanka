@@ -3,171 +3,198 @@ import { createServerSupabase } from '@/lib/supabase-server'
 
 export const dynamic = 'force-dynamic'
 
-const CATEGORIES = [
-  { slug: 'universities',          name: 'Universities' },
-  { slug: 'institutes',            name: 'Institutes' },
-  { slug: 'international-schools', name: "Int'l Schools" },
-  { slug: 'national-schools',      name: 'National Schools' },
-  { slug: 'private-schools',       name: 'Private Schools' },
-  { slug: 'vocational',            name: 'Vocational' },
+const CATEGORY_MAP: Record<string, { label: string; badge: string }> = {
+  universities:          { label: 'University',           badge: 'badge-blue' },
+  institutes:            { label: 'Degree Institute',     badge: 'badge-green' },
+  'international-schools':{ label: 'International School', badge: 'badge-purple' },
+  'national-schools':    { label: 'National School',      badge: 'badge-orange' },
+  'private-schools':     { label: 'Private School',       badge: 'badge-pink' },
+  vocational:            { label: 'Vocational',           badge: 'badge-teal' },
+}
+
+const TYPES = [
+  { slug: '', label: 'All' },
+  { slug: 'universities', label: 'Universities' },
+  { slug: 'institutes', label: 'Degree Institutes' },
+  { slug: 'international-schools', label: 'Int\'l Schools' },
+  { slug: 'national-schools', label: 'National Schools' },
+  { slug: 'private-schools', label: 'Private Schools' },
+  { slug: 'vocational', label: 'Vocational' },
 ]
 
-const PROVINCES = ['Western','Central','Southern','Northern','Eastern','North Western','North Central','Uva','Sabaragamuwa']
+interface Props {
+  searchParams: { q?: string; category?: string }
+}
 
-export default async function InstitutionsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string; category?: string; province?: string; district?: string; page?: string }>
-}) {
-  const { q, category, province, district, page } = await searchParams
-  const supabase = await createServerSupabase()
-  const pageNum = parseInt(page || '1')
-  const pageSize = 24
-  const offset = (pageNum - 1) * pageSize
+export default async function InstitutionsPage({ searchParams }: Props) {
+  const supabase = createServerSupabase()
+  const q = searchParams.q?.trim() || ''
+  const cat = searchParams.category || ''
 
   let query = supabase
     .from('institutions')
-    .select('id,name,slug,city,district,province,phone,website,institution_type,category_id,categories(name,slug)', { count: 'exact' })
-    .eq('is_active', true)
+    .select('id, name, slug, category, city, district, phone, website_url')
     .order('name')
-    .range(offset, offset + pageSize - 1)
+    .limit(200)
 
-  if (q) query = query.ilike('name', `%${q}%`)
-  if (province) query = query.eq('province', province)
-  if (district) query = query.eq('district', district)
-  if (category) {
-    const { data: cat } = await supabase.from('categories').select('id').eq('slug', category).single()
-    if (cat) query = query.eq('category_id', cat.id)
-  }
+  if (cat) query = query.eq('category', cat)
+  if (q)   query = query.ilike('name', `%${q}%`)
 
-  const { data: institutions, count } = await query
-  const totalPages = Math.ceil((count || 0) / pageSize)
+  const { data: institutions = [] } = await query
+  const { count: totalCourses } = await supabase
+    .from('courses')
+    .select('institution_id', { count: 'exact', head: true })
+    .eq('is_active', true)
 
-  const buildUrl = (params: Record<string, string | undefined>) => {
-    const p = new URLSearchParams()
-    const merged = { q, category, province, district, ...params }
-    Object.entries(merged).forEach(([k, v]) => { if (v) p.set(k, v) })
-    return `/institutions?${p.toString()}`
-  }
+  // Get course counts per institution
+  const { data: courseCounts } = await supabase
+    .from('courses')
+    .select('institution_id')
+    .eq('is_active', true)
+
+  const courseCountMap: Record<string, number> = {}
+  ;(courseCounts || []).forEach((r: any) => {
+    courseCountMap[r.institution_id] = (courseCountMap[r.institution_id] || 0) + 1
+  })
+
+  const catMeta = cat ? CATEGORY_MAP[cat] : null
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
-        <form action="/institutions" className="flex-1 flex gap-2">
-          {category && <input type="hidden" name="category" value={category} />}
-          {province && <input type="hidden" name="province" value={province} />}
-          <input
-            name="q"
-            defaultValue={q}
-            type="text"
-            placeholder="Search institutions..."
-            className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a3c6b] text-sm"
-          />
-          <button type="submit" className="bg-[#1a3c6b] text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-[#152f56] transition-colors">
-            Search
-          </button>
-        </form>
+    <>
+      {/* NAVBAR */}
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <Link href="/" className="navbar-logo">
+            Education<span>Lanka</span>
+          </Link>
+          <ul className="navbar-links">
+            <li><Link href="/institutions">All Institutions</Link></li>
+            <li><Link href="/institutions?category=universities">Universities</Link></li>
+            <li><Link href="/institutions?category=institutes">Institutes</Link></li>
+            <li><Link href="/institutions?category=international-schools">Int&apos;l Schools</Link></li>
+            <li><Link href="/portal" className="navbar-portal-link">Institution Portal</Link></li>
+          </ul>
+        </div>
+      </nav>
+
+      {/* PAGE HEADER */}
+      <div style={{ background: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '2rem 1.5rem' }}>
+        <div className="container">
+          <div className="breadcrumb" style={{ padding: 0, marginBottom: '1rem' }}>
+            <Link href="/">Home</Link>
+            <span className="breadcrumb-sep">/</span>
+            <span>Institutions</span>
+            {catMeta && (
+              <>
+                <span className="breadcrumb-sep">/</span>
+                <span>{catMeta.label}s</span>
+              </>
+            )}
+          </div>
+          <h1 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 800, letterSpacing: '-0.025em', marginBottom: '0.5rem' }}>
+            {catMeta ? `${catMeta.label}s in Sri Lanka` : 'All Institutions in Sri Lanka'}
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem' }}>
+            {(institutions?.length ?? 0).toLocaleString()} institution{institutions?.length !== 1 ? 's' : ''} found
+            {q ? ` for "${q}"` : ''}
+          </p>
+        </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        <aside className="lg:w-56 flex-shrink-0">
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 space-y-5">
-            <div>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Category</h3>
-              <ul className="space-y-1">
-                <li>
-                  <Link href={buildUrl({ category: undefined, page: undefined })}
-                    className={`block text-sm px-2 py-1 rounded-lg ${!category ? 'bg-[#1a3c6b] text-white' : 'hover:bg-gray-50 text-gray-700'}`}>
-                    All Categories
-                  </Link>
-                </li>
-                {CATEGORIES.map(c => (
-                  <li key={c.slug}>
-                    <Link href={buildUrl({ category: c.slug, page: undefined })}
-                      className={`block text-sm px-2 py-1 rounded-lg ${category === c.slug ? 'bg-[#1a3c6b] text-white' : 'hover:bg-gray-50 text-gray-700'}`}>
-                      {c.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Province</h3>
-              <ul className="space-y-1">
-                <li>
-                  <Link href={buildUrl({ province: undefined, page: undefined })}
-                    className={`block text-sm px-2 py-1 rounded-lg ${!province ? 'bg-blue-50 text-[#1a3c6b] font-medium' : 'hover:bg-gray-50 text-gray-700'}`}>
-                    All Provinces
-                  </Link>
-                </li>
-                {PROVINCES.map(p => (
-                  <li key={p}>
-                    <Link href={buildUrl({ province: p, page: undefined })}
-                      className={`block text-sm px-2 py-1 rounded-lg ${province === p ? 'bg-blue-50 text-[#1a3c6b] font-medium' : 'hover:bg-gray-50 text-gray-700'}`}>
-                      {p}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </aside>
-
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-500">
-              {count?.toLocaleString() ?? 0} institutions found
-              {q && <> for &ldquo;<strong>{q}</strong>&rdquo;</>}
-              {category && <> in <strong>{CATEGORIES.find(c => c.slug === category)?.name}</strong></>}
-              {province && <> - <strong>{province} Province</strong></>}
-            </p>
-          </div>
-
-          {institutions && institutions.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {institutions.map((inst: any) => (
+      <div className="section section-gray" style={{ paddingTop: '2rem' }}>
+        <div className="container">
+          {/* FILTER BAR */}
+          <div className="filter-bar">
+            <span className="filter-label">Type:</span>
+            <div className="filter-chips">
+              {TYPES.map(t => (
                 <Link
-                  key={inst.id}
-                  href={`/institutions/${inst.slug}`}
-                  className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all group"
+                  key={t.slug}
+                  href={t.slug ? `/institutions?category=${t.slug}${q ? `&q=${encodeURIComponent(q)}` : ''}` : `/institutions${q ? `?q=${encodeURIComponent(q)}` : ''}`}
+                  className={`filter-chip${cat === t.slug ? ' active' : ''}`}
                 >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-[#1a3c6b] text-sm leading-tight">{inst.name}</h3>
-                  </div>
-                  {inst.categories && (
-                    <span className="inline-block text-xs bg-blue-50 text-[#1a3c6b] px-2 py-0.5 rounded-full mb-2">
-                      {(inst.categories as any).name}
-                    </span>
-                  )}
-                  <p className="text-xs text-gray-500">
-                    {[inst.city, inst.district, inst.province].filter(Boolean).join(', ')}
-                  </p>
-                  {inst.phone && <p className="text-xs text-gray-400 mt-1">{inst.phone}</p>}
+                  {t.label}
                 </Link>
               ))}
             </div>
-          ) : (
-            <div className="text-center py-20 text-gray-400">
-              <p className="text-lg font-medium">No institutions found</p>
-              <p className="text-sm">Try a different search or filter</p>
-            </div>
-          )}
+            <form action="/institutions" method="GET" className="search-wrap">
+              {cat && <input type="hidden" name="category" value={cat} />}
+              <span className="search-icon">&#x1F50D;</span>
+              <input
+                name="q"
+                type="search"
+                defaultValue={q}
+                placeholder="Search institutions..."
+              />
+            </form>
+          </div>
 
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              {pageNum > 1 && (
-                <Link href={buildUrl({ page: String(pageNum - 1) })}
-                  className="px-4 py-2 text-sm border border-gray-200 rounded-xl hover:bg-gray-50">&larr; Prev</Link>
-              )}
-              <span className="px-4 py-2 text-sm text-gray-600">Page {pageNum} of {totalPages}</span>
-              {pageNum < totalPages && (
-                <Link href={buildUrl({ page: String(pageNum + 1) })}
-                  className="px-4 py-2 text-sm border border-gray-200 rounded-xl hover:bg-gray-50">Next &rarr;</Link>
-              )}
+          {/* GRID */}
+          {institutions && institutions.length > 0 ? (
+            <div className="inst-grid">
+              {institutions.map((inst: any) => {
+                const meta = CATEGORY_MAP[inst.category] || { label: inst.category, badge: 'badge-navy' }
+                const progCount = courseCountMap[inst.id] || 0
+                return (
+                  <Link key={inst.id} href={`/institutions/${inst.slug}`} className="inst-card">
+                    <div className="inst-card-bar" />
+                    <div className="inst-card-body">
+                      <div className="inst-card-badges">
+                        <span className={`badge ${meta.badge}`}>{meta.label}</span>
+                        {progCount > 0 && (
+                          <span className="badge badge-amber">{progCount} programme{progCount !== 1 ? 's' : ''}</span>
+                        )}
+                      </div>
+                      <div className="inst-card-name">{inst.name}</div>
+                      {(inst.city || inst.district) && (
+                        <div className="inst-card-loc">
+                          {[inst.city, inst.district].filter(Boolean).join(', ')}
+                        </div>
+                      )}
+                      {inst.phone && (
+                        <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
+                          {inst.phone}
+                        </div>
+                      )}
+                      <div className="inst-card-footer">
+                        <span className="inst-card-prog-count">
+                          {progCount > 0 ? `${progCount} programme${progCount !== 1 ? 's' : ''} listed` : 'View details'}
+                        </span>
+                        <span className="inst-card-arrow">&rarr;</span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-secondary)' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>&#x1F50D;</div>
+              <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-text)' }}>No institutions found</h3>
+              <p>Try adjusting your search or filter</p>
+              <Link href="/institutions" className="btn btn-outline" style={{ marginTop: '1.5rem' }}>
+                Clear filters
+              </Link>
             </div>
           )}
         </div>
       </div>
-    </div>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="footer-inner">
+          <div className="footer-brand">Education<span>Lanka</span></div>
+          <p className="footer-tag">Sri Lanka&apos;s comprehensive education guide.</p>
+          <div className="footer-bottom">
+            <span>&copy; {new Date().getFullYear()} EducationLanka. All rights reserved.</span>
+            <nav className="footer-links">
+              <Link href="/">Home</Link>
+              <Link href="/institutions">Institutions</Link>
+              <Link href="/portal">Institution Portal</Link>
+            </nav>
+          </div>
+        </div>
+      </footer>
+    </>
   )
 }
