@@ -225,9 +225,9 @@ export default async function HomePage() {
             </div>
             <div className="inst-grid">
               {featuredInsts.map((inst: any) => {
-                const color = CATEGORY_COLORS[inst.type] || '#1a3a6b'
-                const label = CATEGORY_LABELS[inst.type] || inst.type
-                const badge = CATEGORY_BADGES[inst.type] || 'badge-navy'
+                const color = CATEGORY_COLORS[inst.institution_type] || '#1a3a6b'
+                const label = CATEGORY_LABELS[inst.institution_type] || inst.institution_type
+                const badge = CATEGORY_BADGES[inst.institution_type] || 'badge-navy'
                 return (
                   <Link key={inst.id} href={`/institutions/${inst.slug}`} className="inst-card">
                     <div className="inst-card-bar" style={{ background: color }} />
@@ -305,8 +305,8 @@ export default async function HomePage() {
                     <Link href={`/institutions/${iit.slug}`} className="btn btn-primary btn-lg">
                       View All Programmes
                     </Link>
-                    {iit.website_url && (
-                      <a href={iit.website_url} target="_blank" rel="noopener noreferrer" className="btn btn-white-outline btn-lg">
+                    {iit.website && (
+                      <a href={iit.website} target="_blank" rel="noopener noreferrer" className="btn btn-white-outline btn-lg">
                         Visit IIT Website
                       </a>
                     )}
