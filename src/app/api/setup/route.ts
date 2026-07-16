@@ -44,5 +44,8 @@ export async function GET(request: NextRequest) {
     results[`feature_${slug}`] = error ? error.message : 'ok'
   }
 
-  return NextResponse.json({ success: true, results })
+  // Get column names from first institution
+  const { data: sampleInst } = await supabase.from('institutions').select('*').limit(1).single()
+  const cols = sampleInst ? Object.keys(sampleInst) : []
+  return NextResponse.json({ success: true, results, institutionColumns: cols })
 }
