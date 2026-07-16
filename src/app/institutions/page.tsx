@@ -113,6 +113,7 @@ function renderPage(
   subject: string,
 ) {
   const catMeta = cat ? CATEGORY_MAP[cat] : null
+  const catLabel = cat ? (TYPES.find(t => t.slug === cat)?.label ?? catMeta?.label) : null
 
   return (
     <>
@@ -148,10 +149,10 @@ function renderPage(
             <Link href="/">Home</Link>
             <span className="breadcrumb-sep">/</span>
             <span>Institutions</span>
-            {catMeta && (<><span className="breadcrumb-sep">/</span><span>{catMeta.label}s</span></>)}
+            {catLabel && (<><span className="breadcrumb-sep">/</span><span>{catLabel}</span></>)}
           </div>
           <h1 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 800, letterSpacing: '-0.025em', marginBottom: '0.5rem' }}>
-            {catMeta ? `${catMeta.label}s in Sri Lanka` : 'All Institutions in Sri Lanka'}
+            {catLabel ? `${catLabel} in Sri Lanka` : 'All Institutions in Sri Lanka'}
           </h1>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem' }}>
             {institutions.length.toLocaleString()} institution{institutions.length !== 1 ? 's' : ''} found
