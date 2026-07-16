@@ -118,6 +118,19 @@ export default async function HomePage() {
             <li><Link href="/institutions?category=international-schools">Int&apos;l Schools</Link></li>
             <li><Link href="/students/login" className="navbar-portal-link">Student Portal</Link></li>
           </ul>
+          <details className="navbar-mobile">
+            <summary className="navbar-hamburger-btn" aria-label="Menu">
+              <span></span><span></span><span></span>
+            </summary>
+            <div className="navbar-mobile-drawer">
+              <Link href="/">Home</Link>
+              <Link href="/institutions">All Institutions</Link>
+              <Link href="/institutions?category=universities">Universities</Link>
+              <Link href="/institutions?category=institutes">Institutes</Link>
+              <Link href="/institutions?category=international-schools">Int&apos;l Schools</Link>
+              <Link href="/students/login">Student Portal</Link>
+            </div>
+          </details>
         </div>
       </nav>
 
@@ -344,7 +357,7 @@ export default async function HomePage() {
 
       {/* STUDENT + INSTITUTION CTA */}
       <section className="section section-white">
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'center' }}>
+        <div className="container cta-grid">
           <div style={{
             background: 'linear-gradient(135deg, var(--color-primary), #0ea5e9)',
             borderRadius: 'var(--radius-2xl)',
