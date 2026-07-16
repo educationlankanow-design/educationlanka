@@ -111,8 +111,8 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
 
   const displayCourses = activeLevel ? (grouped[activeLevel] || []) : courses
 
-  const catLabel = CATEGORY_LABELS[inst.type] || inst.type
-  const catBadge = CATEGORY_BADGES[inst.type] || 'badge-navy'
+  const catLabel = CATEGORY_LABELS[inst.institution_type] || inst.institution_type
+  const catBadge = CATEGORY_BADGES[inst.institution_type] || 'badge-navy'
 
   return (
     <>
@@ -151,10 +151,10 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
           <Link href="/">Home</Link>
           <span className="breadcrumb-sep">/</span>
           <Link href="/institutions">Institutions</Link>
-          {inst.type && (
+          {inst.institution_type && (
             <>
               <span className="breadcrumb-sep">/</span>
-              <Link href={`/institutions?category=${inst.type}`}>{catLabel}s</Link>
+              <Link href={`/institutions?category=${inst.institution_type}`}>{catLabel}s</Link>
             </>
           )}
           <span className="breadcrumb-sep">/</span>
@@ -197,10 +197,10 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
                     &#x2709; <a href={`mailto:${inst.email}`} style={{ color: 'var(--color-primary)' }}>{inst.email}</a>
                   </span>
                 )}
-                {inst.website_url && (
+                {inst.website && (
                   <span className="detail-meta-item">
                     <a
-                      href={inst.website_url}
+                      href={inst.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-outline btn-sm"
@@ -254,7 +254,7 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
                       return (
                         <a
                           key={c.id}
-                          href={c.program_url || inst.website_url || '#'}
+                          href={c.program_url || inst.website || '#'}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="program-card"
@@ -313,9 +313,9 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
                   <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>&#x1F4DA;</div>
                   <h3 style={{ color: 'var(--color-text)', marginBottom: '0.5rem' }}>No programmes listed yet</h3>
                   <p style={{ fontSize: '0.9rem' }}>Programme information for this institution is coming soon.</p>
-                  {inst.website_url && (
+                  {inst.website && (
                     <a
-                      href={inst.website_url}
+                      href={inst.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-primary"
@@ -362,9 +362,9 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
                       </a>
                     </div>
                   )}
-                  {inst.website_url && (
+                  {inst.website && (
                     <a
-                      href={inst.website_url}
+                      href={inst.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-primary"
@@ -404,11 +404,11 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
 
               {/* Back link */}
               <Link
-                href={inst.type ? `/institutions?category=${inst.type}` : '/institutions'}
+                href={inst.institution_type ? `/institutions?category=${inst.institution_type}` : '/institutions'}
                 className="btn btn-outline"
                 style={{ justifyContent: 'center' }}
               >
-                &larr; Back to {CATEGORY_LABELS[inst.type] || 'Institutions'}s
+                &larr; Back to {CATEGORY_LABELS[inst.institution_type] || 'Institutions'}s
               </Link>
             </div>
           </div>
