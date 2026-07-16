@@ -134,7 +134,7 @@ export default async function StudentProfilePage() {
             gap: '1rem',
             alignItems: 'flex-start',
           }}>
-            <span style={{ fontSize: '1.25rem' }}>ð</span>
+            <span style={{ fontSize: '1.25rem' }}>🎯</span>
             <div>
               <div style={{ fontWeight: 700, color: 'var(--color-primary)', marginBottom: '0.25rem' }}>Matching active</div>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', margin: 0 }}>
