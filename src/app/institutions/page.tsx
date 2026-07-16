@@ -4,12 +4,33 @@ import { createServerSupabase } from '@/lib/supabase-server'
 export const dynamic = 'force-dynamic'
 
 const CATEGORY_MAP: Record<string, { label: string; badge: string }> = {
-  universities:            { label: 'University',           badge: 'badge-blue' },
-  institutes:              { label: 'Degree Institute',     badge: 'badge-green' },
+  // Slug-style (seeded institutions)
+  universities: { label: 'University', badge: 'badge-blue' },
+  institutes: { label: 'Degree Institute', badge: 'badge-green' },
   'international-schools': { label: 'International School', badge: 'badge-purple' },
-  'national-schools':      { label: 'National School',      badge: 'badge-orange' },
-  'private-schools':       { label: 'Private School',       badge: 'badge-pink' },
-  vocational:              { label: 'Vocational',           badge: 'badge-teal' },
+  'national-schools': { label: 'National School', badge: 'badge-orange' },
+  'private-schools': { label: 'Private School', badge: 'badge-pink' },
+  vocational: { label: 'Vocational', badge: 'badge-teal' },
+  // Raw DB values from bulk import
+  Public: { label: 'University', badge: 'badge-blue' },
+  Private: { label: 'Private Institute', badge: 'badge-green' },
+  'Degree Awarding': { label: 'Degree Awarding', badge: 'badge-green' },
+  International: { label: 'International School', badge: 'badge-purple' },
+  '1AB': { label: 'National School', badge: 'badge-orange' },
+  '1C': { label: 'National School', badge: 'badge-orange' },
+  '1B': { label: 'National School', badge: 'badge-orange' },
+  Professional: { label: 'Professional', badge: 'badge-teal' },
+  Vocational: { label: 'Vocational', badge: 'badge-teal' },
+}
+
+// Maps filter slug → all matching DB institution_type values
+const CATEGORY_FILTER: Record<string, string[]> = {
+  universities: ['universities', 'Public', 'University'],
+  institutes: ['institutes', 'Private', 'Degree Awarding', 'Degree Institute'],
+  'international-schools': ['international-schools', 'International', 'International School'],
+  'national-schools': ['national-schools', '1AB', '1C', '1B', 'National School'],
+  'private-schools': ['private-schools', 'Private School'],
+  vocational: ['vocational', 'Vocational', 'Professional'],
 }
 
 const TYPES = [
@@ -50,13 +71,19 @@ export default async function InstitutionsPage({ searchParams }: Props) {
     .order('name')
     .limit(200)
 
-  if (cat) query = query.eq('institution_type', cat)
-  if (q)   query = query.ilike('name', `%${q}%`)
+  if (cat) {
+    const filterVals = CATEGORY_FILTER[cat]
+    if (filterVals && filterVals.length > 0) {
+      query = query.in('institution_type', filterVals)
+    } else {
+      query = query.eq('institution_type', cat)
+    }
+  }
+  if (q) query = query.ilike('name', `%${q}%`)
   if (subjectInstIds !== null) {
     if (subjectInstIds.length > 0) {
       query = query.in('id', subjectInstIds)
     } else {
-      // No institutions match - return empty
       return renderPage([], 0, {}, q, cat, subject)
     }
   }
@@ -174,7 +201,7 @@ function renderPage(
           {institutions.length > 0 ? (
             <div className="inst-grid">
               {institutions.map((inst: any) => {
-                const meta = CATEGORY_MAP[inst.institution_type] || { label: inst.institution_type, badge: 'badge-navy' }
+                const meta = CATEGORY_MAP[inst.institution_type] || { label: inst.institution_type || 'Institution', badge: 'badge-navy' }
                 const progCount = courseCountMap[inst.id] || 0
                 return (
                   <Link key={inst.id} href={`/institutions/${inst.slug}`} className="inst-card">
