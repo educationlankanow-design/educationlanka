@@ -50,14 +50,29 @@ const CATEGORY_BADGES: Record<string, string> = {
 
 const SCHOOL_INFO: Record<string, { desc: string; tags: string[]; gradient: string }> = {
   'ladies-college-colombo': {
-    desc: "One of Sri Lanka\u2019s most prestigious girls\u2019 schools, Ladies\u2019 College has shaped generations of leaders since 1900, offering outstanding O/L and A/L education with a proud tradition of academic and extracurricular excellence.",
-    tags: ["Girls\u2019 School", "O/L & A/L", "Colombo 7", "Est. 1900"],
+    desc: "One of Sri Lanka's most prestigious girls' schools, Ladies' College has shaped generations of leaders since 1900, offering outstanding O/L and A/L education with a proud tradition of academic and extracurricular excellence.",
+    tags: ["Girls' School", "O/L & A/L", "Colombo 7", "Est. 1900"],
     gradient: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
   },
   'elizabeth-moir-school': {
     desc: "Elizabeth Moir School delivers the Cambridge International curriculum from Early Years through A Levels, preparing students for admission to top universities worldwide from its campus in Colombo 3.",
     tags: ['Cambridge Curriculum', 'Early Years to A/L', 'Colombo 3', 'International'],
     gradient: 'linear-gradient(135deg, #0284c7, #06b6d4)',
+  },
+  'colombo-international-school': {
+    desc: "Colombo International School offers the IB curriculum and Cambridge IGCSE in a truly international environment, developing globally minded students from Early Years through to the IB Diploma.",
+    tags: ['IB World School', 'Cambridge IGCSE', 'Colombo', 'International'],
+    gradient: 'linear-gradient(135deg, #0f766e, #0ea5e9)',
+  },
+  'royal-college-colombo': {
+    desc: "Royal College Colombo is one of Sri Lanka's most celebrated national schools with over 150 years of history, offering the national curriculum from primary through to A/L across all major subject streams.",
+    tags: ["National School", "O/L & A/L", "Colombo 7", "Est. 1835"],
+    gradient: 'linear-gradient(135deg, #b45309, #f59e0b)',
+  },
+  'british-school-colombo': {
+    desc: "The British School in Colombo provides a world-class British-style education following England's National Curriculum, from the Early Years Foundation Stage through Cambridge A Levels.",
+    tags: ['British Curriculum', 'EYFS to A Levels', 'Colombo', 'Cambridge'],
+    gradient: 'linear-gradient(135deg, #1d4ed8, #3b82f6)',
   },
 }
 
@@ -90,7 +105,7 @@ export default async function HomePage() {
     supabase.from('courses').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabase.from('institutions').select('*').eq('slug', 'informatics-institute-of-technology-iit').single(),
     supabase.from('institutions').select('*').eq('is_featured' as any, true).limit(12),
-    supabase.from('institutions').select('*').in('slug', ['ladies-college-colombo', 'elizabeth-moir-school']),
+    supabase.from('institutions').select('*').in('slug', ['ladies-college-colombo', 'elizabeth-moir-school', 'colombo-international-school', 'royal-college-colombo', 'british-school-colombo']),
   ])
 
   const iit = iitResult.data
