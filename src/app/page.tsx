@@ -11,7 +11,7 @@ const SUBJECTS = [
   { name: 'Law',                   abbr: 'LAW', color: '#8b5cf6', bg: '#f3e8ff', query: 'Law' },
   { name: 'Sciences',              abbr: 'SCI', color: '#14b8a6', bg: '#f0fdfa', query: 'Science' },
   { name: 'Arts & Design',         abbr: 'ART', color: '#ec4899', bg: '#fce7f3', query: 'Arts' },
-  { name: "Int'l Curricula",       abbr: 'IB',  color: '#3b82f6', bg: '#dbeafe', query: 'International' },
+  { name: "Int'l Curricula",      abbr: 'IB',  color: '#3b82f6', bg: '#dbeafe', query: 'International' },
 ]
 
 const TYPES = [
@@ -20,7 +20,7 @@ const TYPES = [
   { slug: 'international-schools', name: 'International Schools',     abbr: 'INT', desc: 'IB, Cambridge & American curricula' },
   { slug: 'national-schools',      name: 'National Schools',          abbr: 'NAT', desc: 'Government national schools' },
   { slug: 'private-schools',       name: 'Private Schools',           abbr: 'PVT', desc: 'Independent private schools' },
-  { slug: 'vocational',            name: 'Vocational & Professional',  abbr: 'VOC', desc: 'TVEC, NVQ & professional certs' },
+  { slug: 'vocational',            name: 'Vocational & Professional', abbr: 'VOC', desc: 'TVEC, NVQ & professional certs' },
 ]
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -144,7 +144,7 @@ export default async function HomePage() {
                 style={{ border: 'none', outline: 'none', background: 'transparent', flex: 1, fontSize: '1rem', padding: '0.875rem 0.5rem' }}
               />
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, flexWrap: 'wrap', padding: '0.5rem' }}>
               <select name="category" style={{
                 border: '1.5px solid var(--color-border)',
                 borderRadius: 'var(--radius-lg)',
@@ -189,8 +189,8 @@ export default async function HomePage() {
             {[
               { val: `${(totalInstitutions ?? 0).toLocaleString()}+`, lbl: 'Institutions' },
               { val: `${(totalCourses ?? 0).toLocaleString()}+`,      lbl: 'Programmes Listed' },
-              { val: '6',                                              lbl: 'Institution Types' },
-              { val: '25+',                                            lbl: 'Districts Covered' },
+              { val: '6',                                             lbl: 'Institution Types' },
+              { val: '25+',                                           lbl: 'Districts Covered' },
             ].map(s => (
               <div key={s.lbl}>
                 <div className="hero-stat-val">{s.val}</div>
@@ -210,40 +210,27 @@ export default async function HomePage() {
               <h2 className="section-title">Top institutions in Sri Lanka</h2>
               <p className="section-sub">Highlighted institutions across universities, schools and professional bodies</p>
             </div>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '1.25rem',
-            }}>
+            <div className="inst-grid">
               {featuredInsts.map((inst: any) => {
                 const color = CATEGORY_COLORS[inst.category] || '#1a3a6b'
                 const label = CATEGORY_LABELS[inst.category] || inst.category
                 const badge = CATEGORY_BADGES[inst.category] || 'badge-navy'
                 return (
-                  <Link key={inst.id} href={`/institutions/${inst.slug}`} style={{
-                    display: 'flex',
-                    background: 'var(--color-surface)',
-                    border: '1.5px solid var(--color-border)',
-                    borderRadius: 'var(--radius-xl)',
-                    overflow: 'hidden',
-                    textDecoration: 'none',
-                    transition: 'transform 0.15s, box-shadow 0.15s',
-                    boxShadow: 'var(--shadow-sm)',
-                  }}
-                  onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)' }}
-                  onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = 'var(--shadow-sm)' }}
-                  >
-                    <div style={{ width: '5px', background: color, flexShrink: 0 }} />
-                    <div style={{ padding: '1.25rem', flex: 1 }}>
-                      <span className={`badge ${badge}`} style={{ marginBottom: '0.625rem', display: 'inline-block' }}>{label}</span>
-                      <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-text)', marginBottom: '0.25rem', lineHeight: 1.3 }}>{inst.name}</div>
+                  <Link key={inst.id} href={`/institutions/${inst.slug}`} className="inst-card">
+                    <div className="inst-card-bar" style={{ background: color }} />
+                    <div className="inst-card-body">
+                      <div className="inst-card-badges">
+                        <span className={`badge ${badge}`}>{label}</span>
+                      </div>
+                      <div className="inst-card-name">{inst.name}</div>
                       {(inst.city || inst.district) && (
-                        <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                        <div className="inst-card-loc">
                           &#x1F4CD; {[inst.city, inst.district].filter(Boolean).join(', ')}
                         </div>
                       )}
-                      <div style={{ marginTop: '0.875rem', fontSize: '0.8125rem', color: 'var(--color-primary)', fontWeight: 600 }}>
-                        View programmes &rarr;
+                      <div className="inst-card-footer">
+                        <span className="inst-card-prog-count">View programmes</span>
+                        <span className="inst-card-arrow">&rarr;</span>
                       </div>
                     </div>
                   </Link>
@@ -292,7 +279,7 @@ export default async function HomePage() {
                   <h2 className="featured-title">Informatics Institute of Technology</h2>
                   <p className="featured-desc">
                     35+ years of excellence in Sri Lanka. IIT partners with the{' '}
-                    <strong style={{ color: 'white' }}>University of Westminster</strong> and{' '}
+                    <strong style={{ color: 'white' }}>University of Westminster</strong> and{'  '}
                     <strong style={{ color: 'white' }}>Robert Gordon University</strong> (UK) to deliver
                     world-class degrees right here in Colombo.
                   </p>
@@ -341,7 +328,7 @@ export default async function HomePage() {
             <span className="eyebrow">Browse by Institution Type</span>
             <h2 className="section-title">All institution types</h2>
           </div>
-          <div className="type-grid">
+          <div className¥"type-grid">
             {TYPES.map(t => (
               <Link key={t.slug} href={`/institutions?category=${t.slug}`} className="type-card">
                 <span className="type-icon">{t.abbr}</span>
@@ -355,7 +342,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* STUDENT CTA */}
+      {/* STUDENT + INSTITUTION CTA */}
       <section className="section section-white">
         <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'center' }}>
           <div style={{
@@ -371,8 +358,7 @@ export default async function HomePage() {
               Create your student profile
             </h3>
             <p style={{ color: 'rgba(255,255,255,0.75)', marginBottom: '1.5rem', fontSize: '0.9375rem' }}>
-              Tell us your interests and grades â and we&apos;ll match you with the right programmes.
-              Institutions can then reach out through the platform.
+              Tell us your interests and grades &mdash; and we&apos;ll match you with the right programmes.
             </p>
             <Link href="/students/register" className="btn btn-white-outline btn-lg">
               Register as a Student
@@ -391,7 +377,7 @@ export default async function HomePage() {
               Reach prospective students
             </h3>
             <p style={{ color: 'rgba(255,255,255,0.75)', marginBottom: '1.5rem', fontSize: '0.9375rem' }}>
-              List your programmes, appear in search results, and connect with students who match your intake criteria.
+              List your programmes and connect with students who match your intake criteria.
             </p>
             <Link href="/portal" className="btn btn-white-outline btn-lg">
               Institution Portal
