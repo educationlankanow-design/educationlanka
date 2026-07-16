@@ -111,8 +111,8 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
 
   const displayCourses = activeLevel ? (grouped[activeLevel] || []) : courses
 
-  const catLabel = CATEGORY_LABELS[inst.category] || inst.category
-  const catBadge = CATEGORY_BADGES[inst.category] || 'badge-navy'
+  const catLabel = CATEGORY_LABELS[inst.type] || inst.type
+  const catBadge = CATEGORY_BADGES[inst.type] || 'badge-navy'
 
   return (
     <>
@@ -151,10 +151,10 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
           <Link href="/">Home</Link>
           <span className="breadcrumb-sep">/</span>
           <Link href="/institutions">Institutions</Link>
-          {inst.category && (
+          {inst.type && (
             <>
               <span className="breadcrumb-sep">/</span>
-              <Link href={`/institutions?category=${inst.category}`}>{catLabel}s</Link>
+              <Link href={`/institutions?category=${inst.type}`}>{catLabel}s</Link>
             </>
           )}
           <span className="breadcrumb-sep">/</span>
@@ -404,11 +404,11 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
 
               {/* Back link */}
               <Link
-                href={inst.category ? `/institutions?category=${inst.category}` : '/institutions'}
+                href={inst.type ? `/institutions?category=${inst.type}` : '/institutions'}
                 className="btn btn-outline"
                 style={{ justifyContent: 'center' }}
               >
-                &larr; Back to {CATEGORY_LABELS[inst.category] || 'Institutions'}s
+                &larr; Back to {CATEGORY_LABELS[inst.type] || 'Institutions'}s
               </Link>
             </div>
           </div>
