@@ -3,34 +3,34 @@ import { createServerSupabase } from '@/lib/supabase-server'
 
 export const dynamic = 'force-dynamic'
 
-const CATEGORY_MAP: Record<string, { label: string; badge: string }> = {
-  // Slug-style (seeded institutions)
-  universities: { label: 'University', badge: 'badge-blue' },
-  institutes: { label: 'Degree Institute', badge: 'badge-green' },
-  'international-schools': { label: 'International School', badge: 'badge-purple' },
-  'national-schools': { label: 'National School', badge: 'badge-orange' },
-  'private-schools': { label: 'Private School', badge: 'badge-pink' },
-  vocational: { label: 'Vocational', badge: 'badge-teal' },
-  // Raw DB values from bulk import
-  Public: { label: 'University', badge: 'badge-blue' },
-  Private: { label: 'Private Institute', badge: 'badge-green' },
-  'Degree Awarding': { label: 'Degree Awarding', badge: 'badge-green' },
-  International: { label: 'International School', badge: 'badge-purple' },
-  '1AB': { label: 'National School', badge: 'badge-orange' },
-  '1C': { label: 'National School', badge: 'badge-orange' },
-  '1B': { label: 'National School', badge: 'badge-orange' },
-  Professional: { label: 'Professional', badge: 'badge-teal' },
-  Vocational: { label: 'Vocational', badge: 'badge-teal' },
+const CATEGORY_MAP: Record<string, { label: string; heading: string; badge: string }> = {
+  universities:            { label: 'University',           heading: 'Universities',              badge: 'badge-blue'   },
+  institutes:              { label: 'Degree Institute',     heading: 'Degree Institutes',         badge: 'badge-green'  },
+  'international-schools': { label: 'International School', heading: 'International Schools',     badge: 'badge-purple' },
+  'national-schools':      { label: 'National School',      heading: 'National Schools',          badge: 'badge-orange' },
+  'private-schools':       { label: 'Private School',       heading: 'Private Schools',           badge: 'badge-pink'   },
+  vocational:              { label: 'Vocational',           heading: 'Vocational & Professional', badge: 'badge-teal'   },
+  // Raw DB values
+  Public:                  { label: 'University',           heading: 'Universities',              badge: 'badge-blue'   },
+  Private:                 { label: 'Private Institute',    heading: 'Private Institutes',        badge: 'badge-green'  },
+  'Degree Awarding':       { label: 'Degree Institute',     heading: 'Degree Institutes',         badge: 'badge-green'  },
+  International:           { label: 'International School', heading: 'International Schools',     badge: 'badge-purple' },
+  'International School':  { label: 'International School', heading: 'International Schools',     badge: 'badge-purple' },
+  '1AB':                   { label: 'National School',      heading: 'National Schools',          badge: 'badge-orange' },
+  '1C':                    { label: 'National School',      heading: 'National Schools',          badge: 'badge-orange' },
+  '1B':                    { label: 'National School',      heading: 'National Schools',          badge: 'badge-orange' },
+  Professional:            { label: 'Professional',         heading: 'Professional Institutes',   badge: 'badge-teal'   },
+  Vocational:              { label: 'Vocational',           heading: 'Vocational',                badge: 'badge-teal'   },
 }
 
-// Maps filter slug → all matching DB institution_type values
+// Maps category slug → all possible institution_type values in DB
 const CATEGORY_FILTER: Record<string, string[]> = {
-  universities: ['universities', 'Public', 'University'],
-  institutes: ['institutes', 'Private', 'Degree Awarding', 'Degree Institute'],
+  universities:            ['universities', 'Public', 'University', 'Public University'],
+  institutes:              ['institutes', 'Degree Awarding', 'Degree Institute', 'Degree Awarding Institute'],
   'international-schools': ['international-schools', 'International', 'International School'],
-  'national-schools': ['national-schools', '1AB', '1C', '1B', 'National School'],
-  'private-schools': ['private-schools', 'Private School'],
-  vocational: ['vocational', 'Vocational', 'Professional'],
+  'national-schools':      ['national-schools', '1AB', '1C', '1B', 'National School'],
+  'private-schools':       ['private-schools', 'Private School'],
+  vocational:              ['vocational', 'Vocational', 'Professional'],
 }
 
 const TYPES = [
@@ -54,37 +54,33 @@ export default async function InstitutionsPage({ searchParams }: Props) {
   const cat = catRaw || ''
   const subject = subjectRaw?.trim() || ''
 
-  // If subject filter, find institution IDs with matching courses
+  // Subject filter: find institution IDs with matching courses
   let subjectInstIds: string[] | null = null
   if (subject) {
     const { data: matchCourses } = await supabase
       .from('courses')
       .select('institution_id')
-      .ilike('category', `%${subject}%`)
+      .ilike('name', `%${subject}%`)
       .eq('is_active', true)
     subjectInstIds = [...new Set((matchCourses || []).map((c: any) => c.institution_id))]
   }
 
   let query = supabase
     .from('institutions')
-    .select('*')
+    .select('id, name, slug, institution_type, city, district, phone, website')
     .order('name')
     .limit(200)
 
   if (cat) {
-    const filterVals = CATEGORY_FILTER[cat]
-    if (filterVals && filterVals.length > 0) {
-      query = query.in('institution_type', filterVals)
-    } else {
-      query = query.eq('institution_type', cat)
-    }
+    const filterValues = CATEGORY_FILTER[cat] || [cat]
+    query = (query as any).in('institution_type', filterValues)
   }
   if (q) query = query.ilike('name', `%${q}%`)
   if (subjectInstIds !== null) {
     if (subjectInstIds.length > 0) {
       query = query.in('id', subjectInstIds)
     } else {
-      return renderPage([], 0, {}, q, cat, subject)
+      return renderPage([], {}, q, cat, subject)
     }
   }
 
@@ -101,19 +97,17 @@ export default async function InstitutionsPage({ searchParams }: Props) {
     courseCountMap[r.institution_id] = (courseCountMap[r.institution_id] || 0) + 1
   })
 
-  return renderPage(institutions || [], 0, courseCountMap, q, cat, subject)
+  return renderPage(institutions || [], courseCountMap, q, cat, subject)
 }
 
 function renderPage(
   institutions: any[],
-  _: number,
   courseCountMap: Record<string, number>,
   q: string,
   cat: string,
   subject: string,
 ) {
   const catMeta = cat ? CATEGORY_MAP[cat] : null
-  const catLabel = cat ? (TYPES.find(t => t.slug === cat)?.label ?? catMeta?.label) : null
 
   return (
     <>
@@ -127,19 +121,6 @@ function renderPage(
             <li><Link href="/institutions?category=international-schools">Int&apos;l Schools</Link></li>
             <li><Link href="/students/login" className="navbar-portal-link">Student Portal</Link></li>
           </ul>
-          <details className="navbar-mobile">
-            <summary className="navbar-hamburger-btn" aria-label="Menu">
-              <span></span><span></span><span></span>
-            </summary>
-            <div className="navbar-mobile-drawer">
-              <Link href="/">Home</Link>
-              <Link href="/institutions">All Institutions</Link>
-              <Link href="/institutions?category=universities">Universities</Link>
-              <Link href="/institutions?category=institutes">Institutes</Link>
-              <Link href="/institutions?category=international-schools">Int&apos;l Schools</Link>
-              <Link href="/students/login">Student Portal</Link>
-            </div>
-          </details>
         </div>
       </nav>
 
@@ -149,10 +130,10 @@ function renderPage(
             <Link href="/">Home</Link>
             <span className="breadcrumb-sep">/</span>
             <span>Institutions</span>
-            {catLabel && (<><span className="breadcrumb-sep">/</span><span>{catLabel}</span></>)}
+            {catMeta && (<><span className="breadcrumb-sep">/</span><span>{catMeta.heading}</span></>)}
           </div>
           <h1 style={{ fontSize: 'clamp(1.5rem,3vw,2.25rem)', fontWeight: 800, letterSpacing: '-0.025em', marginBottom: '0.5rem' }}>
-            {catLabel ? `${catLabel} in Sri Lanka` : 'All Institutions in Sri Lanka'}
+            {catMeta ? `${catMeta.heading} in Sri Lanka` : 'All Institutions in Sri Lanka'}
           </h1>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '1rem' }}>
             {institutions.length.toLocaleString()} institution{institutions.length !== 1 ? 's' : ''} found
@@ -202,7 +183,8 @@ function renderPage(
           {institutions.length > 0 ? (
             <div className="inst-grid">
               {institutions.map((inst: any) => {
-                const meta = CATEGORY_MAP[inst.institution_type] || { label: inst.institution_type || 'Institution', badge: 'badge-navy' }
+                const itype = inst.institution_type || ''
+                const meta = CATEGORY_MAP[itype] || { label: itype || 'Institution', badge: 'badge-navy' }
                 const progCount = courseCountMap[inst.id] || 0
                 return (
                   <Link key={inst.id} href={`/institutions/${inst.slug}`} className="inst-card">
@@ -231,10 +213,19 @@ function renderPage(
             <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-secondary)' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>&#x1F50D;</div>
               <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-text)' }}>No institutions found</h3>
-              <p>Try adjusting your search or filter</p>
+              <p style={{ marginBottom: '0.5rem' }}>Try adjusting your search or filter</p>
               <Link href="/institutions" className="btn btn-outline" style={{ marginTop: '1.5rem' }}>Clear filters</Link>
             </div>
           )}
+
+          {/* Contribute CTA */}
+          <div style={{ marginTop: '3rem', padding: '1.5rem', background: 'var(--color-surface)', border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Know an institution that&apos;s not listed?</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>Submit a new school, university or institute for review by our team.</div>
+            </div>
+            <Link href="/submit" className="btn btn-primary">Submit an Institution</Link>
+          </div>
         </div>
       </div>
 
