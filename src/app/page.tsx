@@ -79,7 +79,7 @@ export default async function HomePage() {
     supabase.from('institutions')
       .select('id, name, city, district, website_url, slug, category')
       .eq('slug', 'informatics-institute-of-technology-iit')
-      .single(),
+      .single() as any,
     supabase.from('institutions')
       .select('id, name, slug, category, city, district')
       .eq('is_featured' as any, true)
