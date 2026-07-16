@@ -225,9 +225,9 @@ export default async function HomePage() {
             </div>
             <div className="inst-grid">
               {featuredInsts.map((inst: any) => {
-                const color = CATEGORY_COLORS[inst.category] || '#1a3a6b'
-                const label = CATEGORY_LABELS[inst.category] || inst.category
-                const badge = CATEGORY_BADGES[inst.category] || 'badge-navy'
+                const color = CATEGORY_COLORS[inst.type] || '#1a3a6b'
+                const label = CATEGORY_LABELS[inst.type] || inst.type
+                const badge = CATEGORY_BADGES[inst.type] || 'badge-navy'
                 return (
                   <Link key={inst.id} href={`/institutions/${inst.slug}`} className="inst-card">
                     <div className="inst-card-bar" style={{ background: color }} />
