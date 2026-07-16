@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   for (const inst of seedInstitutions) {
     const { error } = await supabase
       .from('institutions')
-      .upsert({ ...inst, country: 'Sri Lanka', is_active: true }, { onConflict: 'slug', ignoreDuplicates: true })
+      .upsert({ ...inst }, { onConflict: 'slug', ignoreDuplicates: true })
     results[`seed_${inst.slug}`] = error ? error.message : 'ok'
   }
 
