@@ -77,7 +77,7 @@ export default async function HomePage() {
     supabase.from('institutions').select('*', { count: 'exact', head: true }),
     supabase.from('courses').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabase.from('institutions')
-      .select('id, name, city, district, website_url, slug, category')
+      .select('*')
       .eq('slug', 'informatics-institute-of-technology-iit')
       .single() as any,
     supabase.from('institutions')
