@@ -172,7 +172,7 @@ function renderPage(
                         {progCount > 0 && <span className="badge badge-amber">{progCount} programme{progCount !== 1 ? 's' : ''}</span>}
                       </div>
                       <div className="inst-card-name">{inst.name}</div>
-                      y(inst.city || inst.district) && (
+                      {(inst.city || inst.district) && (
                         <div className="inst-card-loc">{[inst.city, inst.district].filter(Boolean).join(', ')}</div>
                       )}
                       <div className="inst-card-footer">
