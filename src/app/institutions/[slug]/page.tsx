@@ -129,6 +129,19 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
             <li><Link href="/institutions?category=international-schools">Int&apos;l Schools</Link></li>
             <li><Link href="/portal" className="navbar-portal-link">Institution Portal</Link></li>
           </ul>
+          <details className="navbar-mobile">
+            <summary className="navbar-hamburger-btn" aria-label="Menu">
+              <span></span><span></span><span></span>
+            </summary>
+            <div className="navbar-mobile-drawer">
+              <Link href="/">Home</Link>
+              <Link href="/institutions">All Institutions</Link>
+              <Link href="/institutions?category=universities">Universities</Link>
+              <Link href="/institutions?category=institutes">Institutes</Link>
+              <Link href="/institutions?category=international-schools">Int&apos;l Schools</Link>
+              <Link href="/portal">Institution Portal</Link>
+            </div>
+          </details>
         </div>
       </nav>
 
