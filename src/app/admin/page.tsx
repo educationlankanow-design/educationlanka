@@ -24,7 +24,7 @@ export default async function AdminPage() {
   // Fetch all institutions
   const { data: institutions } = await admin
     .from('institutions')
-    .select('id, name, slug, type, is_featured')
+    .select('id, name, slug, institution_type, is_featured')
     .order('name')
 
   // Fetch recent students
@@ -112,7 +112,7 @@ export default async function AdminPage() {
                   {institutions?.map((inst: any) => (
                     <tr key={inst.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                       <td style={{ padding: '0.75rem', fontWeight: 600 }}>{inst.name}</td>
-                      <td style={{ padding: '0.75rem', color: 'var(--color-text-secondary)' }}>{inst.type || 'â'}</td>
+                      <td style={{ padding: '0.75rem', color: 'var(--color-text-secondary)' }}>{inst.institution_type || 'â'}</td>
                       <td style={{ padding: '0.75rem' }}>
                         <form action={toggleFeatured} style={{ display: 'inline' }}>
                           <input type="hidden" name="id" value={inst.id} />
