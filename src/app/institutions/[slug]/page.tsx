@@ -70,17 +70,19 @@ function levelAbbr(name: string): string {
 }
 
 interface Props {
-  params: { slug: string }
-  searchParams: { level?: string }
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ level?: string }>
 }
 
 export default async function InstitutionPage({ params, searchParams }: Props) {
-  const supabase = createServerSupabase()
+  const { slug } = await params
+  const { level: activeTab } = await searchParams
+  const supabase = await createServerSupabase()
 
   const { data: inst } = await supabase
     .from('institutions')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single()
 
   if (!inst) notFound()
@@ -103,8 +105,8 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
   })
 
   const availableLevels = LEVEL_ORDER.filter(l => grouped[l]?.length)
-  const activeLevel = searchParams.level && grouped[searchParams.level]
-    ? searchParams.level
+  const activeLevel = activeTab && grouped[activeTab]
+    ? activeTab
     : availableLevels[0] || ''
 
   const displayCourses = activeLevel ? (grouped[activeLevel] || []) : courses
@@ -223,7 +225,7 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
                       {availableLevels.map(lvl => (
                         <Link
                           key={lvl}
-                          href={`/institutions/${params.slug}?level=${lvl}`}
+                          href={`/institutions/${slug}?level=${lvl}`}
                           className={`level-tab${activeLevel === lvl ? ' active' : ''}`}
                         >
                           {LEVEL_LABELS[lvl] || lvl}
