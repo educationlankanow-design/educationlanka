@@ -13,11 +13,11 @@ export async function GET(request: NextRequest) {
 
   // DML: seed missing featured institutions
   const seedInstitutions = [
-    { name: 'Elizabeth Moir School',  slug: 'elizabeth-moir-school',  category: 'international-schools', city: 'Colombo', district: 'Colombo' },
-    { name: 'Royal College Colombo',  slug: 'royal-college-colombo',  category: 'national-schools',      city: 'Colombo', district: 'Colombo' },
-    { name: 'Ladies College Colombo', slug: 'ladies-college-colombo', category: 'private-schools',        city: 'Colombo', district: 'Colombo' },
-    { name: 'CIMA Sri Lanka',         slug: 'cima-sri-lanka',         category: 'vocational',             city: 'Colombo', district: 'Colombo' },
-    { name: 'University of Peradeniya', slug: 'university-of-peradeniya', category: 'universities',      city: 'Peradeniya', district: 'Kandy' },
+    { name: 'Elizabeth Moir School',  slug: 'elizabeth-moir-school',  type: 'international-schools', city: 'Colombo', district: 'Colombo' },
+    { name: 'Royal College Colombo',  slug: 'royal-college-colombo',  type: 'national-schools',      city: 'Colombo', district: 'Colombo' },
+    { name: 'Ladies College Colombo', slug: 'ladies-college-colombo', type: 'private-schools',        city: 'Colombo', district: 'Colombo' },
+    { name: 'CIMA Sri Lanka',         slug: 'cima-sri-lanka',         type: 'vocational',             city: 'Colombo', district: 'Colombo' },
+    { name: 'University of Peradeniya', slug: 'university-of-peradeniya', type: 'universities',      city: 'Peradeniya', district: 'Kandy' },
   ]
 
   for (const inst of seedInstitutions) {
