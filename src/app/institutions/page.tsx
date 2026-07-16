@@ -50,7 +50,7 @@ export default async function InstitutionsPage({ searchParams }: Props) {
     .order('name')
     .limit(200)
 
-  if (cat) query = query.eq('category', cat)
+  if (cat) query = query.eq('type', cat)
   if (q)   query = query.ilike('name', `%${q}%`)
   if (subjectInstIds !== null) {
     if (subjectInstIds.length > 0) {
@@ -174,7 +174,7 @@ function renderPage(
           {institutions.length > 0 ? (
             <div className="inst-grid">
               {institutions.map((inst: any) => {
-                const meta = CATEGORY_MAP[inst.category] || { label: inst.category, badge: 'badge-navy' }
+                const meta = CATEGORY_MAP[inst.type] || { label: inst.type, badge: 'badge-navy' }
                 const progCount = courseCountMap[inst.id] || 0
                 return (
                   <Link key={inst.id} href={`/institutions/${inst.slug}`} className="inst-card">
