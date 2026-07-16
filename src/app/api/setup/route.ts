@@ -13,11 +13,11 @@ export async function GET(request: NextRequest) {
 
   // DML: seed missing featured institutions
   const seedInstitutions = [
-    { name: 'Elizabeth Moir School',  slug: 'elizabeth-moir-school',  type: 'international-schools', city: 'Colombo', district: 'Colombo' },
-    { name: 'Royal College Colombo',  slug: 'royal-college-colombo',  type: 'national-schools',      city: 'Colombo', district: 'Colombo' },
-    { name: 'Ladies College Colombo', slug: 'ladies-college-colombo', type: 'private-schools',        city: 'Colombo', district: 'Colombo' },
-    { name: 'CIMA Sri Lanka',         slug: 'cima-sri-lanka',         type: 'vocational',             city: 'Colombo', district: 'Colombo' },
-    { name: 'University of Peradeniya', slug: 'university-of-peradeniya', type: 'universities',      city: 'Peradeniya', district: 'Kandy' },
+    { name: 'Elizabeth Moir School',  slug: 'elizabeth-moir-school',  institution_type: 'international-schools', city: 'Colombo', district: 'Colombo' },
+    { name: 'Royal College Colombo',  slug: 'royal-college-colombo',  institution_type: 'national-schools',      city: 'Colombo', district: 'Colombo' },
+    { name: 'Ladies College Colombo', slug: 'ladies-college-colombo', institution_type: 'private-schools',        city: 'Colombo', district: 'Colombo' },
+    { name: 'CIMA Sri Lanka',         slug: 'cima-sri-lanka',         institution_type: 'vocational',             city: 'Colombo', district: 'Colombo' },
+    { name: 'University of Peradeniya', slug: 'university-of-peradeniya', institution_type: 'universities',      city: 'Peradeniya', district: 'Kandy' },
   ]
 
   for (const inst of seedInstitutions) {
@@ -44,8 +44,5 @@ export async function GET(request: NextRequest) {
     results[`feature_${slug}`] = error ? error.message : 'ok'
   }
 
-  // Get column names from first institution
-  const { data: sampleInst } = await supabase.from('institutions').select('*').limit(1).single()
-  const cols = sampleInst ? Object.keys(sampleInst) : []
-  return NextResponse.json({ success: true, results, institutionColumns: cols })
+  return NextResponse.json({ success: true, results })
 }
