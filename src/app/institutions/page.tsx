@@ -46,7 +46,7 @@ export default async function InstitutionsPage({ searchParams }: Props) {
 
   let query = supabase
     .from('institutions')
-    .select('id, name, slug, category, city, district, website_url')
+    .select('id, name, slug, category, city, district')
     .order('name')
     .limit(200)
 
