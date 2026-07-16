@@ -328,7 +328,7 @@ export default async function HomePage() {
             <span className="eyebrow">Browse by Institution Type</span>
             <h2 className="section-title">All institution types</h2>
           </div>
-          <div className¥"type-grid">
+          <div className="type-grid">
             {TYPES.map(t => (
               <Link key={t.slug} href={`/institutions?category=${t.slug}`} className="type-card">
                 <span className="type-icon">{t.abbr}</span>
