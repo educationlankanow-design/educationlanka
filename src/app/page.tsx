@@ -144,8 +144,10 @@ export default async function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section className="hero">
-        <div className="hero-content">
+      <section className="hero" style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1600&q=80" alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.15, zIndex: 0 }} />
+        <div className="hero-content" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-eyebrow">Sri Lanka&apos;s Comprehensive Education Guide</div>
           <h1 className="hero-title">Find your perfect <em>course</em> in Sri Lanka</h1>
           <p className="hero-subtitle">
@@ -209,7 +211,7 @@ export default async function HomePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
               {featuredInsts.map((inst: any) => {
-                const itype = inst.institution_type || inst.category || ''
+                const itype = inst.institution_type || inst.institution_type || ''
                 const color = CATEGORY_COLORS[itype] || '#1a3a6b'
                 const label = CATEGORY_LABELS[itype] || itype
                 const badge = CATEGORY_BADGES[itype] || 'badge-navy'
