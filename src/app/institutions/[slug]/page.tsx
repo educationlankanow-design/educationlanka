@@ -9,17 +9,17 @@ export const dynamic = 'force-dynamic'
 function getInstMeta(itype: string) {
   const t = itype || ''
   if (t.includes('University') || t === 'Public' || t === 'universities')
-    return { label: 'University', catSlug: 'universities', color: '#3b82f6' }
+    return { label: 'University', catSlug: 'universities', catPlural: 'Universities', color: '#3b82f6' }
   if (t.includes('Degree') || t === 'institutes')
-    return { label: 'Degree Institute', catSlug: 'institutes', color: '#10b981' }
+    return { label: 'Degree Institute', catSlug: 'institutes', catPlural: 'Degree Institutes', color: '#10b981' }
   if (t.includes('International') || t === 'international-schools')
-    return { label: 'International School', catSlug: 'international-schools', color: '#8b5cf6' }
+    return { label: 'International School', catSlug: 'international-schools', catPlural: 'International Schools', color: '#8b5cf6' }
   if (t === '1AB' || t === '1C' || t === '1B' || t.includes('National') || t === 'national-schools')
-    return { label: 'National School', catSlug: 'national-schools', color: '#f59e0b' }
+    return { label: 'National School', catSlug: 'national-schools', catPlural: 'National Schools', color: '#f59e0b' }
   if (t.includes('Private') || t === 'private-schools')
-    return { label: 'Private School', catSlug: 'private-schools', color: '#ec4899' }
+    return { label: 'Private School', catSlug: 'private-schools', catPlural: 'Private Schools', color: '#ec4899' }
   if (t.includes('Vocational') || t.includes('Professional') || t === 'vocational')
-    return { label: 'Vocational & Professional', catSlug: 'vocational', color: '#14b8a6' }
+    return { label: 'Vocational & Professional', catSlug: 'vocational', catPlural: 'Vocational & Professional', color: '#14b8a6' }
   return { label: t || 'Institution', catSlug: '', color: '#64748b' }
 }
 
@@ -278,7 +278,7 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
         <div className="breadcrumb">
           <Link href="/">Home</Link><span className="breadcrumb-sep">/</span>
           <Link href="/institutions">Institutions</Link>
-          {meta.catSlug && <><span className="breadcrumb-sep">/</span><Link href={'/institutions?category=' + meta.catSlug}>{meta.label}s</Link></>}
+          {meta.catSlug && <><span className="breadcrumb-sep">/</span><Link href={'/institutions?category=' + meta.catSlug}>{meta.catPlural}</Link></>}
           <span className="breadcrumb-sep">/</span>
           <span style={{ color: 'var(--color-text)', fontWeight: 500 }}>{inst.name}</span>
         </div>
@@ -423,7 +423,7 @@ export default async function InstitutionPage({ params, searchParams }: Props) {
               <ContributeWidget institutionId={inst.id} institutionName={inst.name} />
 
               <Link href={meta.catSlug ? '/institutions?category=' + meta.catSlug : '/institutions'} className="btn btn-outline" style={{ justifyContent: 'center' }}>
-                &larr; Back to {meta.label}s
+                &larr; Back to {meta.catPlural}
               </Link>
             </div>
           </div>
