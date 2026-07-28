@@ -210,7 +210,7 @@ export default async function HomePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
               {featuredInsts.map((inst: any) => {
-                const itype = inst.institution_type || inst.institution_type || ''
+                const itype = inst.institution_type || inst.category || ''
                 const color = CATEGORY_COLORS[itype] || '#1a3a6b'
                 const label = CATEGORY_LABELS[itype] || itype
                 const badge = CATEGORY_BADGES[itype] || 'badge-navy'
