@@ -88,5 +88,19 @@ export async function GET(request: NextRequest) {
     results['prog_' + p.name.slice(0, 25)] = error ? error.message : 'ok'
   }
 
-  return NextResponse.json({ success: true, results })
+  
+  // Force-set institution_type for institutions that may have been seeded with only category
+  const typeUpdates = [
+    { slug: 'elizabeth-moir-school',  institution_type: 'international-schools' },
+    { slug: 'ladies-college-colombo', institution_type: 'private-schools' },
+    { slug: 'cima-sri-lanka',         institution_type: 'vocational' },
+    { slug: 'university-of-peradeniya', institution_type: 'universities' },
+    { slug: 'royal-college-colombo',  institution_type: 'national-schools' },
+  ]
+  for (const upd of typeUpdates) {
+    const { error } = await supabase.from('institutions').update({ institution_type: upd.institution_type }).eq('slug', upd.slug)
+    results['type_' + upd.slug] = error ? error.message : 'ok'
+  }
+
+return NextResponse.json({ success: true, results })
 }
