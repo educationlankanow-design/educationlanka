@@ -145,8 +145,7 @@ export default async function HomePage() {
 
       {/* HERO */}
       <section className="hero" style={{ position: 'relative', overflow: 'hidden' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1600&q=80" alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.15, zIndex: 0 }} />
+        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="hero-content" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-eyebrow">Sri Lanka&apos;s Comprehensive Education Guide</div>
           <h1 className="hero-title">Find your perfect <em>course</em> in Sri Lanka</h1>
