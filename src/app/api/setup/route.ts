@@ -1,106 +1,87 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminSupabase } from '@/lib/supabase-admin'
 
+// One-time DB setup endpoint. Call: GET /api/setup?secret=elanka-setup-2024
 export async function GET(request: NextRequest) {
   const secret = new URL(request.url).searchParams.get('secret')
-  if (secret !== 'elanka-setup-2024') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (secret !== 'elanka-setup-2024') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const supabase = createAdminSupabase()
   const results: Record<string, string> = {}
 
-  const institutions = [
-    { name: 'Elizabeth Moir School', slug: 'elizabeth-moir-school', institution_type: 'international-schools', city: 'Colombo', district: 'Colombo', website: 'https://elizabethmoir.com', description: 'Leading Cambridge international school in Colombo 3, offering education from Early Years through A Levels.' },
-    { name: 'Royal College Colombo', slug: 'royal-college-colombo', institution_type: 'national-schools', city: 'Colombo', district: 'Colombo', description: "One of Sri Lanka's most prestigious national schools with over 150 years of academic excellence." },
-    { name: "Ladies' College Colombo", slug: 'ladies-college-colombo', institution_type: 'private-schools', city: 'Colombo', district: 'Colombo', description: "A leading girls' school offering O/L and A/L with a tradition of excellence since 1900." },
-    { name: 'CIMA Sri Lanka', slug: 'cima-sri-lanka', institution_type: 'vocational', city: 'Colombo', district: 'Colombo', website: 'https://cimasrilanka.com', description: 'The Chartered Institute of Management Accountants — professional finance qualifications in Sri Lanka.' },
-    { name: 'University of Peradeniya', slug: 'university-of-peradeniya', institution_type: 'universities', city: 'Peradeniya', district: 'Kandy', website: 'https://pdn.ac.lk', description: "One of Sri Lanka's leading state universities, situated in the scenic city of Kandy." },
-    { name: 'Colombo International School', slug: 'colombo-international-school', institution_type: 'international-schools', city: 'Colombo', district: 'Colombo', website: 'https://cis.lk', description: 'Offering IB and Cambridge IGCSE curricula in an internationally accredited environment.' },
-    { name: 'The British School in Colombo', slug: 'british-school-colombo', institution_type: 'international-schools', city: 'Colombo', district: 'Colombo', website: 'https://britishschool.lk', description: 'British-style education following the National Curriculum of England, from Early Years to A Levels.' },
+  // Seed missing institutions (no 'country' column in schema)
+  const seedInstitutions = [
+    // International schools
+    { name: 'Elizabeth Moir School',        slug: 'elizabeth-moir-school',        institution_type: 'International', category: 'international-schools', city: 'Colombo',    district: 'Colombo', description: 'A leading international school in Colombo offering the British curriculum from Early Years through to A Levels.' },
+    { name: 'British School in Colombo',    slug: 'british-school-colombo',        institution_type: 'International', category: 'international-schools', city: 'Colombo',    district: 'Colombo', description: 'One of Sri Lanka\'s premier international schools providing a British education from Nursery to Year 13.' },
+    { name: 'Overseas School of Colombo',   slug: 'overseas-school-of-colombo',    institution_type: 'International', category: 'international-schools', city: 'Battaramulla', district: 'Colombo', description: 'A not-for-profit international school following the International Baccalaureate (IB) curriculum.' },
+    { name: 'Colombo International School', slug: 'colombo-international-school',  institution_type: 'International', category: 'international-schools', city: 'Colombo',    district: 'Colombo', description: 'Offers the Cambridge International curriculum from Kindergarten through to A Levels.' },
+    { name: 'Lyceum International School',  slug: 'lyceum-international-school',   institution_type: 'International', category: 'international-schools', city: 'Nugegoda',   district: 'Colombo', description: 'One of the largest international school networks in Sri Lanka with branches across the country.' },
+    { name: 'Gateway College Colombo',      slug: 'gateway-college-colombo',       institution_type: 'International', category: 'international-schools', city: 'Colombo',    district: 'Colombo', description: 'Offers Cambridge International Examinations with a focus on holistic student development.' },
+    // Private schools
+    { name: 'Ladies\' College Colombo',     slug: 'ladies-college-colombo',        institution_type: 'private-schools',       category: 'private-schools',       city: 'Colombo',    district: 'Colombo', description: 'One of Sri Lanka\'s most prestigious girls\' schools, offering O Levels and A Levels.' },
+    { name: 'Wesley College Colombo',       slug: 'wesley-college-colombo',        institution_type: 'private-schools',       category: 'private-schools',       city: 'Colombo',    district: 'Colombo', description: 'A leading boys\' school in Colombo established in 1874 by the Methodist Church.' },
+    { name: 'Hindu College Colombo',        slug: 'hindu-college-colombo',         institution_type: 'private-schools',       category: 'private-schools',       city: 'Colombo',    district: 'Colombo', description: 'A well-regarded school in Colombo catering primarily to the Hindu community.' },
+    { name: 'Musaeus College Colombo',      slug: 'musaeus-college-colombo',       institution_type: 'private-schools',       category: 'private-schools',       city: 'Colombo',    district: 'Colombo', description: 'A leading Buddhist girls\' school in Colombo offering primary and secondary education.' },
+    // National schools
+    { name: 'Royal College Colombo',        slug: 'royal-college-colombo',         institution_type: '1AB',           category: 'national-schools',      city: 'Colombo',    district: 'Colombo', description: 'One of the most prestigious national schools in Sri Lanka with a history spanning over 175 years.' },
+    // Universities
+    { name: 'University of Peradeniya',     slug: 'university-of-peradeniya',      institution_type: 'Public',        category: 'universities',          city: 'Peradeniya', district: 'Kandy',   description: 'One of the largest and most prestigious national universities in Sri Lanka, founded in 1942.' },
+    // Vocational
+    { name: 'CIMA Sri Lanka',               slug: 'cima-sri-lanka',                institution_type: 'Professional',  category: 'vocational',             city: 'Colombo',    district: 'Colombo', description: 'The Chartered Institute of Management Accountants Sri Lanka division, offering globally recognised accountancy qualifications.' },
   ]
 
-  for (const inst of institutions) {
-    const { error } = await supabase.from('institutions').upsert(
-      { ...inst, country: 'Sri Lanka', is_active: true },
-      { onConflict: 'slug', ignoreDuplicates: false }
-    )
-    results['inst_' + inst.slug] = error ? error.message : 'ok'
+  for (const inst of seedInstitutions) {
+    const { error } = await supabase
+      .from('institutions')
+      .upsert({ ...inst, is_active: true }, { onConflict: 'slug', ignoreDuplicates: false })
+    results[`inst_${inst.slug}`] = error ? error.message : 'ok'
   }
 
+  // Mark featured
   const featuredSlugs = [
-    'informatics-institute-of-technology-iit', 'elizabeth-moir-school', 'royal-college-colombo',
-    'ladies-college-colombo', 'university-of-peradeniya', 'cima-sri-lanka',
-    'colombo-international-school', 'british-school-colombo',
+    'informatics-institute-of-technology-iit',
+    'elizabeth-moir-school',
+    'royal-college-colombo',
+    'ladies-college-colombo',
+    'university-of-peradeniya',
+    'cima-sri-lanka',
+    'british-school-colombo',
+    'overseas-school-of-colombo',
   ]
   for (const slug of featuredSlugs) {
-    const { error } = await supabase.from('institutions').update({ is_featured: true } as any).eq('slug', slug)
-    results['feature_' + slug] = error ? error.message : 'ok'
+    const { error } = await supabase
+      .from('institutions')
+      .update({ is_featured: true } as any)
+      .eq('slug', slug)
+    results[`feature_${slug}`] = error ? error.message : 'ok'
   }
 
-  const { data: instRows } = await supabase.from('institutions').select('id, slug')
-  const instMap: Record<string, string> = {}
-  ;(instRows || []).forEach((r: any) => { instMap[r.slug] = r.id })
-
-  const programs = [
-    { s: 'elizabeth-moir-school', name: 'Cambridge Early Years & Primary', level: 'primary', duration: 'Ages 3-11', category: "Int'l Curricula" },
-    { s: 'elizabeth-moir-school', name: 'Cambridge Lower Secondary', level: 'secondary', duration: 'Ages 11-14', category: "Int'l Curricula" },
-    { s: 'elizabeth-moir-school', name: 'Cambridge IGCSE', level: 'secondary', duration: 'Ages 14-16', category: "Int'l Curricula" },
-    { s: 'elizabeth-moir-school', name: 'Cambridge International A Levels', level: 'alevel', duration: 'Ages 16-18', category: "Int'l Curricula" },
-    { s: 'royal-college-colombo', name: 'National Syllabus Primary & Junior Secondary', level: 'secondary', duration: 'Grades 1-9', category: 'Sciences' },
-    { s: 'royal-college-colombo', name: 'GCE Ordinary Level (O/L)', level: 'secondary', duration: 'Grades 10-11', category: 'Sciences' },
-    { s: 'royal-college-colombo', name: 'GCE A/L — Physical Science Stream', level: 'alevel', duration: 'Grades 12-13', category: 'Sciences' },
-    { s: 'royal-college-colombo', name: 'GCE A/L — Biological Science Stream', level: 'alevel', duration: 'Grades 12-13', category: 'Medicine' },
-    { s: 'royal-college-colombo', name: 'GCE A/L — Commerce Stream', level: 'alevel', duration: 'Grades 12-13', category: 'Business' },
-    { s: 'royal-college-colombo', name: 'GCE A/L — Arts Stream', level: 'alevel', duration: 'Grades 12-13', category: 'Arts' },
-    { s: 'ladies-college-colombo', name: 'Primary Education', level: 'primary', duration: 'Grades 1-5', category: 'Sciences' },
-    { s: 'ladies-college-colombo', name: 'GCE Ordinary Level (O/L)', level: 'secondary', duration: 'Grades 6-11', category: 'Sciences' },
-    { s: 'ladies-college-colombo', name: 'GCE A/L — Science Stream', level: 'alevel', duration: 'Grades 12-13', category: 'Sciences' },
-    { s: 'ladies-college-colombo', name: 'GCE A/L — Commerce Stream', level: 'alevel', duration: 'Grades 12-13', category: 'Business' },
-    { s: 'ladies-college-colombo', name: 'GCE A/L — Arts Stream', level: 'alevel', duration: 'Grades 12-13', category: 'Arts' },
-    { s: 'cima-sri-lanka', name: 'CIMA Certificate in Business Accounting (Cert BA)', level: 'professional', duration: '6-12 months', category: 'Business' },
-    { s: 'cima-sri-lanka', name: 'CIMA Operational Level', level: 'professional', duration: '12-18 months', category: 'Business' },
-    { s: 'cima-sri-lanka', name: 'CIMA Management Level', level: 'professional', duration: '12-18 months', category: 'Business' },
-    { s: 'cima-sri-lanka', name: 'CIMA Strategic Level', level: 'professional', duration: '12-18 months', category: 'Business' },
-    { s: 'cima-sri-lanka', name: 'CIMA — Chartered Management Accountant', level: 'professional', duration: '3-5 years', category: 'Business' },
-    { s: 'university-of-peradeniya', name: 'BSc Engineering (Civil / Electrical / Mechanical)', level: 'undergraduate', duration: '4 years', category: 'Engineering' },
-    { s: 'university-of-peradeniya', name: 'MBBS — Faculty of Medicine', level: 'undergraduate', duration: '5 years', category: 'Medicine' },
-    { s: 'university-of-peradeniya', name: 'BDS — Dental Surgery', level: 'undergraduate', duration: '5 years', category: 'Medicine' },
-    { s: 'university-of-peradeniya', name: 'BSc Agriculture', level: 'undergraduate', duration: '4 years', category: 'Sciences' },
-    { s: 'university-of-peradeniya', name: 'LLB — Faculty of Law', level: 'undergraduate', duration: '3 years', category: 'Law' },
-    { s: 'university-of-peradeniya', name: 'BSc Science (Physics / Chemistry / Biology)', level: 'undergraduate', duration: '3 years', category: 'Sciences' },
-    { s: 'colombo-international-school', name: 'IB Primary Years Programme (PYP)', level: 'primary', duration: 'Ages 3-12', category: "Int'l Curricula" },
-    { s: 'colombo-international-school', name: 'IB Middle Years Programme (MYP)', level: 'secondary', duration: 'Ages 11-16', category: "Int'l Curricula" },
-    { s: 'colombo-international-school', name: 'Cambridge IGCSE', level: 'secondary', duration: 'Ages 14-16', category: "Int'l Curricula" },
-    { s: 'colombo-international-school', name: 'IB Diploma Programme', level: 'alevel', duration: 'Ages 16-19', category: "Int'l Curricula" },
-    { s: 'british-school-colombo', name: 'Early Years Foundation Stage (EYFS)', level: 'primary', duration: 'Ages 3-5', category: "Int'l Curricula" },
-    { s: 'british-school-colombo', name: 'Key Stage 1 & 2 — Primary', level: 'primary', duration: 'Ages 5-11', category: "Int'l Curricula" },
-    { s: 'british-school-colombo', name: 'Key Stage 3 — Lower Secondary', level: 'secondary', duration: 'Ages 11-14', category: "Int'l Curricula" },
-    { s: 'british-school-colombo', name: 'Cambridge IGCSE (Key Stage 4)', level: 'secondary', duration: 'Ages 14-16', category: "Int'l Curricula" },
-    { s: 'british-school-colombo', name: 'Cambridge International A Levels', level: 'alevel', duration: 'Ages 16-18', category: "Int'l Curricula" },
-  ]
-
-  for (const p of programs) {
-    const instId = instMap[p.s]
-    if (!instId) { results['prog_missing_' + p.s] = 'no id'; continue }
-    const { error } = await supabase.from('courses').upsert(
-      { institution_id: instId, name: p.name, level: p.level, duration: p.duration, category: p.category, is_active: true },
-      { onConflict: 'institution_id,name', ignoreDuplicates: true }
-    )
-    results['prog_' + p.name.slice(0, 25)] = error ? error.message : 'ok'
-  }
-
-  
-  // Force-set institution_type for institutions that may have been seeded with only category
+  // Fix institution_type for existing seeded records
   const typeUpdates = [
-    { slug: 'elizabeth-moir-school',  institution_type: 'international-schools' },
-    { slug: 'ladies-college-colombo', institution_type: 'private-schools' },
-    { slug: 'cima-sri-lanka',         institution_type: 'vocational' },
-    { slug: 'university-of-peradeniya', institution_type: 'universities' },
-    { slug: 'royal-college-colombo',  institution_type: 'national-schools' },
+    { slug: 'elizabeth-moir-school',        institution_type: 'International' },
+    { slug: 'british-school-colombo',       institution_type: 'International' },
+    { slug: 'overseas-school-of-colombo',   institution_type: 'International' },
+    { slug: 'colombo-international-school', institution_type: 'International' },
+    { slug: 'lyceum-international-school',  institution_type: 'International' },
+    { slug: 'gateway-college-colombo',      institution_type: 'International' },
+    { slug: 'ladies-college-colombo',       institution_type: 'private-schools' },
+    { slug: 'wesley-college-colombo',       institution_type: 'private-schools' },
+    { slug: 'hindu-college-colombo',        institution_type: 'private-schools' },
+    { slug: 'musaeus-college-colombo',      institution_type: 'private-schools' },
+    { slug: 'royal-college-colombo',        institution_type: '1AB' },
+    { slug: 'university-of-peradeniya',     institution_type: 'Public' },
+    { slug: 'cima-sri-lanka',               institution_type: 'Professional' },
   ]
   for (const upd of typeUpdates) {
-    const { error } = await supabase.from('institutions').update({ institution_type: upd.institution_type }).eq('slug', upd.slug)
-    results['type_' + upd.slug] = error ? error.message : 'ok'
+    const { error } = await supabase
+      .from('institutions')
+      .update({ institution_type: upd.institution_type })
+      .eq('slug', upd.slug)
+    results[`type_${upd.slug}`] = error ? error.message : 'ok'
   }
 
-return NextResponse.json({ success: true, results })
+  return NextResponse.json({ success: true, results })
 }
