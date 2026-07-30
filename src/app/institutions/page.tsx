@@ -31,6 +31,17 @@ const CATEGORY_FILTER: Record<string, string[]> = {
   'national-schools':      ['national-schools', '1AB', '1C', '1B', 'National School'],
   'private-schools':       ['private-schools', 'Private School'],
   vocational:              ['vocational', 'Vocational', 'Professional'],
+  // raw DB institution_type values from original data import
+  Public:             { label: 'University',           badge: 'badge-blue' },
+  Private:            { label: 'Degree Institute',     badge: 'badge-green' },
+  'Degree Awarding':  { label: 'Degree Institute',     badge: 'badge-green' },
+  International:      { label: 'International School', badge: 'badge-purple' },
+  '1AB':              { label: 'National School',      badge: 'badge-orange' },
+  '1B':               { label: 'National School',      badge: 'badge-orange' },
+  '1C':               { label: 'National School',      badge: 'badge-orange' },
+  '1D':               { label: 'National School',      badge: 'badge-orange' },
+  Professional:       { label: 'Vocational',           badge: 'badge-teal' },
+  Vocational:         { label: 'Vocational',           badge: 'badge-teal' },
 }
 
 const TYPES = [
@@ -42,6 +53,15 @@ const TYPES = [
   { slug: 'private-schools', label: 'Private Schools' },
   { slug: 'vocational', label: 'Vocational' },
 ]
+const CAT_TO_TYPES: Record<string, string[]> = {
+  universities:            ['Public', 'universities'],
+  institutes:              ['Private', 'Degree Awarding', 'institutes'],
+  'international-schools': ['International', 'international-schools'],
+  'national-schools':      ['1AB', '1B', '1C', '1D', 'national-schools'],
+  'private-schools':       ['private-schools'],
+  vocational:              ['Professional', 'Vocational', 'vocational'],
+}
+
 
 interface Props {
   searchParams: Promise<{ q?: string; category?: string; subject?: string }>
