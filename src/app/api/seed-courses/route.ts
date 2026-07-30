@@ -107,6 +107,22 @@ export async function GET(request: NextRequest) {
     ],
   }
 
+  // Upsert missing institutions that aren't in the original 538 import
+  const newInstitutions = [
+    { name: 'British School in Colombo',    slug: 'british-school-colombo',       institution_type: 'International', city: 'Colombo',     district: 'Colombo',   description: 'One of Sri Lanka\'s premier international schools providing a British education from Nursery to Year 13.', is_active: true },
+    { name: 'Lyceum International School',  slug: 'lyceum-international-school',  institution_type: 'International', city: 'Nugegoda',    district: 'Colombo',   description: 'One of the largest international school networks in Sri Lanka with branches island-wide.', is_active: true },
+    { name: 'Colombo International School', slug: 'colombo-international-school', institution_type: 'International', city: 'Colombo',     district: 'Colombo',   description: 'Offers the Cambridge International curriculum from Kindergarten through to A Levels.', is_active: true },
+    { name: 'Gateway College Colombo',      slug: 'gateway-college-colombo',      institution_type: 'International', city: 'Colombo',     district: 'Colombo',   description: 'Offers Cambridge International Examinations with a focus on holistic student development.', is_active: true },
+    { name: 'Hindu College Colombo',        slug: 'hindu-college-colombo',        institution_type: 'private-schools', city: 'Colombo', district: 'Colombo',   description: 'A well-regarded school in Colombo catering primarily to the Hindu community.', is_active: true },
+    { name: 'Musaeus College Colombo',      slug: 'musaeus-college-colombo',      institution_type: 'private-schools', city: 'Colombo', district: 'Colombo',   description: 'A leading Buddhist girls\' school in Colombo offering primary and secondary education.', is_active: true },
+    { name: 'Wesley College Colombo',       slug: 'wesley-college-colombo',       institution_type: 'private-schools', city: 'Colombo', district: 'Colombo',   description: 'A leading boys\' school in Colombo established in 1874 by the Methodist Church.', is_active: true },
+  ]
+  for (const inst of newInstitutions) {
+    const { error } = await supabase.from('institutions').upsert(inst, { onConflict: 'slug', ignoreDuplicates: false })
+    results['upsert_' + inst.slug] = error ? error.message : 'ok'
+  }
+
+
   const slugs = Object.keys(coursesData)
   const { data: institutions } = await supabase
     .from('institutions')
